@@ -222,6 +222,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
             'id' => $course->id,
             'name' => self::mark($course->getFullname(), $search),
             'url' => URLHelper::getURL("dispatch.php/course/details", array('cid' => $course->id)),
+            'img' => CourseAvatar::getAvatar($course->id)->getUrl(AVATAR::MEDIUM),
             'date' => $course->start_semester->name
         );
     }
