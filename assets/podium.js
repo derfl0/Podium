@@ -130,7 +130,6 @@ $(document).ready(function () {
             case 27:
                 $('#quickfilewrapper').fadeOut(400);
                 break;
-
             case 13: // enter
                 var elem = list.find('a.selected');
                 console.log(elem);
@@ -157,6 +156,13 @@ $(document).ready(function () {
             case 18: // alt
                 selectedItem.parents('li').addClass('expand');
                 list.children('li:not(.expand)').addClass('collapse');
+                break;
+            case 8: // backspace
+                if (list.find('.expand').length > 0) {
+                    e.preventDefault();
+                    list.find('.expand').removeClass('expand');
+                    list.find('.collapse').removeClass('collapse');
+                }
                 break;
             default:
                 clearTimeout(STUDIP.quickfile.timeout);

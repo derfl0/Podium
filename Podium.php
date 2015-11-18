@@ -208,7 +208,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
 
         // visibility
         if (!$GLOBALS['perm']->have_perm('admin')) {
-            $visibility = "course.visible = 1 AND ";
+            $visibility = "courses.visible = 1 AND ";
         }
 
         $sql = "SELECT 'courses' as type, courses.seminar_id as id FROM seminare courses WHERE $visibility(courses.Name LIKE $query OR courses.VeranstaltungsNummer LIKE $query) ORDER BY ABS(start_time - unix_timestamp()) ASC";
