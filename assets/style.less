@@ -1,0 +1,115 @@
+div#quickfilewrapper {
+  top: 18%;
+  width: 100%;
+  margin: auto;
+  position: fixed;
+  z-index: 9999999;
+  display: none;
+  div#quickfile {
+    width: 400px;
+    margin: 0 auto;
+    top: 30%;
+    background-color: @content-color-20;
+    border: 1px solid @base-color;
+    box-shadow: 4px 4px 6px 0px rgba(0, 0, 0, 0.4);
+    mark {
+      background-color: @content-color-40;
+      color: inherit;
+    }
+    h3 {
+      margin: 6px 6px -3px;
+    }
+    div#quickfileinput {
+      padding: 10px;
+      input {
+        width: 100%;
+        box-sizing: border-box;
+        &.quickfile_ajax {
+          background-image: url("@{image-path}/ajax_indicator_small.gif");
+          background-repeat: no-repeat;
+          background-position: center right 4px;
+        }
+      }
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      cursor: pointer;
+      cursor: hand;
+      li {
+        & > p {
+          background-color: @content-color-80;
+          color: white;
+          padding-left: 2px;
+          font-size: 12px;
+          margin: 0;
+          border-top: 1px solid @light-gray-color;
+        }
+        ul {
+          li {
+            border-top: 1px solid @light-gray-color;
+            position: relative;
+            background-color: white;
+            div.quickfiledate {
+              position: absolute;
+              top: 0;
+              right: 2px;
+              color: @light-gray-color;
+              font-size: 0.6em;
+            }
+            a {
+              display: flex;
+              padding: 8px;
+              word-wrap: break-word;
+              &.selected {
+                background: @base-color-40;
+              }
+              img {
+                margin-right: 8px;
+                max-height: 40px;
+              }
+            }
+            p {
+              margin: 0;
+              & + p {
+                color: @dark-gray-color;
+                font-size: 0.7em;
+                word-wrap: break-word;
+              }
+            }
+          }
+          &:hover {
+            li.selected {
+              &.selected {
+                background-color: inherit;
+              }
+            }
+            li:hover {
+              background: @base-color-40 !important;
+            }
+          }
+        }
+        &:not(.expand) {
+          ul[data-maxsize='3'] li:nth-child(n+4) {
+            display: none;
+          }
+          ul[data-maxsize='2'] li:nth-child(n+3) {
+            display: none;
+          }
+        }
+        &.collapse {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+img#podiumicon {
+  height: 16px;
+  width: 16px;
+  display: none;
+  &.visible {
+    background-color: @base-color;
+  }
+}
