@@ -9,6 +9,8 @@
  */
 class Podium extends StudIPPlugin implements SystemPlugin
 {
+    const SHOW_ALL_AVATARS = false;
+
     private static $types = array();
 
     public function __construct()
@@ -202,13 +204,18 @@ class Podium extends StudIPPlugin implements SystemPlugin
     private function filter_user($user_id, $search)
     {
         $user = User::find($user_id);
-        return array(
+        $result = array(
             'id' => $user->id,
             'name' => self::mark($user->getFullname(), $search),
             'url' => URLHelper::getURL("dispatch.php/profile", array('username' => $user->username)),
-            'img' => Avatar::getAvatar($user->id)->getUrl(AVATAR::MEDIUM),
-            'additional' => self::mark($user->username, $search)
+            'additional' => self::mark($user->username, $search),
+            'expand' => URLHelper::getURL("browse.php", array('name' => $search)),
         );
+        $avatar =  Avatar::getAvatar($user->id);
+        if (self::SHOW_ALL_AVATARS || $avatar->is_customized()) {
+            $result['img'] = $avatar->getUrl(AVATAR::MEDIUM);
+        }
+        return $result;
     }
 
     private function search_mycourse($search)
@@ -241,13 +248,24 @@ class Podium extends StudIPPlugin implements SystemPlugin
     private function filter_course($course_id, $search)
     {
         $course = Course::find($course_id);
-        return array(
+        $result = array(
             'id' => $course->id,
             'name' => self::mark($course->getFullname(), $search),
             'url' => URLHelper::getURL("dispatch.php/course/details", array('cid' => $course->id)),
-            'img' => CourseAvatar::getAvatar($course->id)->getUrl(AVATAR::MEDIUM),
-            'date' => $course->start_semester->name
+            'date' => $course->start_semester->name,
+            'expand' => URLHelper::getURL("dispatch.php/search/courses", array(
+                'reset_all' => 1,
+                'search_sem_qs_choose' => 'title_lecturer_number',
+                'search_sem_sem' => 'all',
+                'search_sem_quick_search_parameter' => $search,
+                'search_sem_1508068a50572e5faff81c27f7b3a72f' => 1 // Fuck you Stud.IP
+            ))
         );
+        $avatar = CourseAvatar::getAvatar($course->id);
+        if (self::SHOW_ALL_AVATARS || $avatar->is_customized()) {
+            $result['img'] = $avatar->getUrl(AVATAR::MEDIUM);
+        }
+        return $result;
     }
 
     private function search_semtree($search)
@@ -283,11 +301,17 @@ class Podium extends StudIPPlugin implements SystemPlugin
     private function filter_inst($inst_id, $search)
     {
         $inst = Institute::find($inst_id);
-        return array(
+        $result = array(
             'id' => $inst->id,
             'name' => self::mark($inst->getFullname(), $search),
-            'url' => URLHelper::getURL("dispatch.php/institute/overview", array('cid' => $inst->id))
+            'url' => URLHelper::getURL("dispatch.php/institute/overview", array('cid' => $inst->id)),
+            'expand' => URLHelper::getURL('institut_browse.php', array('cmd' => 'suche', 'search_name' => $search))
         );
+        $avatar = InstituteAvatar::getAvatar($inst->id);
+        if (self::SHOW_ALL_AVATARS || $avatar->is_customized()) {
+            $result['img'] = $avatar->getUrl(AVATAR::MEDIUM);
+        }
+        return $result;
     }
 
 }

@@ -92,6 +92,11 @@ STUDIP.podium = {
                         $(e.target).closest('a').addClass('selected');
                     });
 
+                // Add expand if sent
+                if (hit.expand) {
+                    newItem.attr('data-expand', hit.expand);
+                }
+
                 // Add image if sent
                 if (hit.img) {
                     newItem.prepend($('<img>', {src: hit.img}));
@@ -155,8 +160,14 @@ STUDIP.podium = {
                     break;
                 case 18: // alt
                     e.preventDefault();
-                    selectedItem.parents('li').addClass('expand');
-                    list.children('li:not(.expand)').addClass('collapse');
+                    if (list.find('.expand').length > 0) {
+                        if (selectedItem.attr('data-expand')) {
+                            window.location.href = selectedItem.data().expand;
+                        }
+                    } else {
+                        selectedItem.parents('li').addClass('expand');
+                        list.children('li:not(.expand)').addClass('collapse');
+                    }
                     break;
                 case 8: // backspace
                     if (list.find('.expand').length > 0) {
