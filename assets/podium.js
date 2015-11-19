@@ -54,6 +54,9 @@ STUDIP.podium = {
             }
         }
     },
+    getSelectedItem: function() {
+      return $('#podium #podiumlist').find('.selected');
+    },
     display: function (items) {
         var list = $('#podium #podiumlist');
         list.children().remove();
@@ -78,8 +81,14 @@ STUDIP.podium = {
             var result = $('<li>');
             list.append(result);
             result.append($('<p>', {text: val.name})).click(function (e) {
-                $(this).addClass('expand');
-                list.children('li:not(.expand)').addClass('collapse');
+                if (list.find('ul:visible').length === 1 ) {
+                    if (STUDIP.podium.getSelectedItem().attr('data-expand')) {
+                        window.location.href = STUDIP.podium.getSelectedItem().data().expand;
+                    }
+                } else {
+                    $(this).addClass('expand');
+                    list.children('li:not(.expand)').addClass('collapse');
+                }
             });
             var resultlist = $('<ul>', {'data-maxsize': maxSize});
             result.append(resultlist);
@@ -164,7 +173,7 @@ STUDIP.podium = {
                     break;
                 case 18: // alt
                     e.preventDefault();
-                    if (list.find('.expand').length > 0) {
+                    if (list.find('ul:visible').length === 1 ) {
                         if (selectedItem.attr('data-expand')) {
                             window.location.href = selectedItem.data().expand;
                         }
