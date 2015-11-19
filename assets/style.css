@@ -176,6 +176,9 @@ div#podiumwrapper div#podium ul li:not(.expand) ul[data-maxsize='3'] li:nth-chil
 div#podiumwrapper div#podium ul li:not(.expand) ul[data-maxsize='2'] li:nth-child(n+3) {
   display: none;
 }
+div#podiumwrapper div#podium ul li:not(.expand) ul[data-maxsize='1'] li:nth-child(n+2) {
+  display: none;
+}
 div#podiumwrapper div#podium ul li.collapse {
   display: none;
 }

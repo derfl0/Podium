@@ -21,7 +21,7 @@ STUDIP.podium = {
         $('#podiumwrapper input').focus();
         STUDIP.podium.load();
     },
-    close: function() {
+    close: function () {
         if ($('#podiumwrapper').is(':visible')) {
             STUDIP.podium.open();
         }
@@ -63,7 +63,11 @@ STUDIP.podium = {
         var length = Object.keys(items).length;
         if (length > 1) {
             if (length > 2) {
-                maxSize = 2;
+                if (length > 4) {
+                    maxSize = 1;
+                } else {
+                    maxSize = 2;
+                }
             } else {
                 maxSize = 3;
             }
@@ -108,7 +112,7 @@ STUDIP.podium = {
         });
         list.find('a').first().addClass('selected');
     },
-    init: function() {
+    init: function () {
 
         // Bind click outside podium
         $('html').click(function (e) {
