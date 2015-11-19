@@ -197,8 +197,12 @@ class Podium extends StudIPPlugin implements SystemPlugin
             return null;
         }
 
+        // if you're no admin respekt visibilty
+        if (!$GLOBALS['perm']->have_perm('admin')) {
+            $visQuery = get_vis_query('user', 'search'). " AND ";
+        }
         $query = DBManager::get()->quote("%$search%");
-        $sql = "SELECT 'user' as type, user.user_id as id FROM auth_user_md5 user JOIN user_visibility USING (user_id) WHERE (CONCAT_WS(' ', user.nachname, user.vorname) LIKE $query OR  CONCAT_WS(' ', user.vorname, user.nachname) LIKE $query OR username LIKE $query) AND " . get_vis_query('user', 'search');
+        $sql = "SELECT 'user' as type, user.user_id as id FROM auth_user_md5 user JOIN user_visibility USING (user_id) WHERE $visQuery (CONCAT_WS(' ', user.nachname, user.vorname) LIKE $query OR  CONCAT_WS(' ', user.vorname, user.nachname) LIKE $query OR username LIKE $query)";
         return $sql;
     }
 
