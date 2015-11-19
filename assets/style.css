@@ -83,7 +83,7 @@
  * @category    Stud.IP
  * @since       2.4
  */
-div#quickfilewrapper {
+div#podiumwrapper {
   top: 18%;
   width: 100%;
   margin: auto;
@@ -91,7 +91,7 @@ div#quickfilewrapper {
   z-index: 9999999;
   display: none;
 }
-div#quickfilewrapper div#quickfile {
+div#podiumwrapper div#podium {
   width: 400px;
   margin: 0 auto;
   top: 30%;
@@ -99,32 +99,32 @@ div#quickfilewrapper div#quickfile {
   border: 1px solid #28497c;
   box-shadow: 4px 4px 6px 0px rgba(0, 0, 0, 0.4);
 }
-div#quickfilewrapper div#quickfile mark {
+div#podiumwrapper div#podium mark {
   background-color: #d0d7e3;
   color: inherit;
 }
-div#quickfilewrapper div#quickfile h3 {
+div#podiumwrapper div#podium h3 {
   margin: 6px 6px -3px;
 }
-div#quickfilewrapper div#quickfile div#quickfileinput {
+div#podiumwrapper div#podium div#podiuminput {
   padding: 10px;
 }
-div#quickfilewrapper div#quickfile div#quickfileinput input {
+div#podiumwrapper div#podium div#podiuminput input {
   width: 100%;
   box-sizing: border-box;
 }
-div#quickfilewrapper div#quickfile div#quickfileinput input.quickfile_ajax {
+div#podiumwrapper div#podium div#podiuminput input.podium_ajax {
   background-image: url("http://localhost/31/public/assets/images//ajax_indicator_small.gif");
   background-repeat: no-repeat;
   background-position: center right 4px;
 }
-div#quickfilewrapper div#quickfile ul {
+div#podiumwrapper div#podium ul {
   list-style: none;
   padding: 0;
   cursor: pointer;
   cursor: hand;
 }
-div#quickfilewrapper div#quickfile ul li > p {
+div#podiumwrapper div#podium ul li > p {
   background-color: #a1aec7;
   color: white;
   padding-left: 2px;
@@ -132,51 +132,51 @@ div#quickfilewrapper div#quickfile ul li > p {
   margin: 0;
   border-top: 1px solid #69767f;
 }
-div#quickfilewrapper div#quickfile ul li ul li {
+div#podiumwrapper div#podium ul li ul li {
   border-top: 1px solid #69767f;
   position: relative;
   background-color: white;
 }
-div#quickfilewrapper div#quickfile ul li ul li div.quickfiledate {
+div#podiumwrapper div#podium ul li ul li div.podiumdate {
   position: absolute;
   top: 0;
   right: 2px;
   color: #69767f;
   font-size: 0.6em;
 }
-div#quickfilewrapper div#quickfile ul li ul li a {
+div#podiumwrapper div#podium ul li ul li a {
   display: flex;
   padding: 8px;
   word-wrap: break-word;
 }
-div#quickfilewrapper div#quickfile ul li ul li a.selected {
+div#podiumwrapper div#podium ul li ul li a.selected {
   background: #a9b6cb;
 }
-div#quickfilewrapper div#quickfile ul li ul li a img {
+div#podiumwrapper div#podium ul li ul li a img {
   margin-right: 8px;
   max-height: 40px;
 }
-div#quickfilewrapper div#quickfile ul li ul li p {
+div#podiumwrapper div#podium ul li ul li p {
   margin: 0;
 }
-div#quickfilewrapper div#quickfile ul li ul li p + p {
+div#podiumwrapper div#podium ul li ul li p + p {
   color: #3c454e;
   font-size: 0.7em;
   word-wrap: break-word;
 }
-div#quickfilewrapper div#quickfile ul li ul:hover li.selected.selected {
+div#podiumwrapper div#podium ul li ul:hover li.selected.selected {
   background-color: inherit;
 }
-div#quickfilewrapper div#quickfile ul li ul:hover li:hover {
+div#podiumwrapper div#podium ul li ul:hover li:hover {
   background: #a9b6cb !important;
 }
-div#quickfilewrapper div#quickfile ul li:not(.expand) ul[data-maxsize='3'] li:nth-child(n+4) {
+div#podiumwrapper div#podium ul li:not(.expand) ul[data-maxsize='3'] li:nth-child(n+4) {
   display: none;
 }
-div#quickfilewrapper div#quickfile ul li:not(.expand) ul[data-maxsize='2'] li:nth-child(n+3) {
+div#podiumwrapper div#podium ul li:not(.expand) ul[data-maxsize='2'] li:nth-child(n+3) {
   display: none;
 }
-div#quickfilewrapper div#quickfile ul li.collapse {
+div#podiumwrapper div#podium ul li.collapse {
   display: none;
 }
 img#podiumicon {
