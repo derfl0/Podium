@@ -185,7 +185,8 @@ class Podium extends StudIPPlugin implements SystemPlugin
                 'name' => self::mark($file->name, $search),
                 'url' => URLHelper::getURL("sendfile.php?type=0&file_id={$file->id}&file_name={$file->filename}"),
                 'additional' => self::mark($file->course ? $file->course->getFullname() : '', $search, false),
-                'date' => strftime('%x', $file->chdate)
+                'date' => strftime('%x', $file->chdate),
+                'expand' => URLHelper::getURL("folder.php", array("cid" => $file->seminar_id, "cmd" => "tree"))
             );
         }
     }
