@@ -112,7 +112,7 @@ STUDIP.podium = {
             //For descendants of menu_content being clicked, remove this check if you do not want to put constraint on descendants.
             if ($(e.target).closest('#podium').length)
                 return;
-            STUDIP.podium.open();
+            STUDIP.podium.close();
         });
 
         // Move podiumicon
