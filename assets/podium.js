@@ -163,7 +163,6 @@ $(document).ready(function () {
                     list.find('.expand').removeClass('expand');
                     list.find('.collapse').removeClass('collapse');
                 }
-                break;
             default:
                 clearTimeout(STUDIP.quickfile.timeout);
                 STUDIP.quickfile.timeout = setTimeout(function () {
