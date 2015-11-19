@@ -8,6 +8,15 @@ STUDIP.podium = {
     cache: [],
     current: false,
     open: function () {
+
+        // icon
+        if ($('#podiumwrapper').is(':visible')) {
+            $('#podiumicon').removeClass('visible');
+        } else {
+            $('#podiumicon').addClass('visible');
+        }
+
+        // Podiumwindow
         $('#podiumwrapper').fadeToggle(400);
         $('#podiumwrapper input').focus();
         STUDIP.podium.load();
@@ -98,13 +107,13 @@ STUDIP.podium = {
             //For descendants of menu_content being clicked, remove this check if you do not want to put constraint on descendants.
             if ($(e.target).closest('#podium').length)
                 return;
-            $('#podiumwrapper').fadeOut(400);
+            STUDIP.podium.open();
         });
 
         // Move podiumicon
         $('form#quicksearch').after($('#podiumicon').click(function (e) {
             STUDIP.podium.open();
-        }).show()).hide().parent().css('vertical-align', 'middle');
+        }).show()).hide();
 
         // Keymapping
         $('#podiumwrapper').keydown(function (e) {

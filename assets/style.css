@@ -183,7 +183,9 @@ img#podiumicon {
   height: 16px;
   width: 16px;
   display: none;
+  padding: 4px;
+  cursor: pointer;
 }
 img#podiumicon.visible {
-  background-color: #28497c;
+  background-color: rgba(255, 255, 255, 0.3);
 }
