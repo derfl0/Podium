@@ -202,7 +202,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
             $visQuery = get_vis_query('user', 'search'). " AND ";
         }
         $query = DBManager::get()->quote("%$search%");
-        $sql = "SELECT 'user' as type, user.user_id as id FROM auth_user_md5 user JOIN user_visibility USING (user_id) WHERE $visQuery (CONCAT_WS(' ', user.nachname, user.vorname) LIKE $query OR  CONCAT_WS(' ', user.vorname, user.nachname) LIKE $query OR username LIKE $query)";
+        $sql = "SELECT 'user' as type, user.user_id as id FROM auth_user_md5 user LEFT JOIN user_visibility USING (user_id) WHERE $visQuery (CONCAT_WS(' ', user.nachname, user.vorname) LIKE $query OR  CONCAT_WS(' ', user.vorname, user.nachname) LIKE $query OR username LIKE $query)";
         return $sql;
     }
 
