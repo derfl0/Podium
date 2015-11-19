@@ -21,6 +21,11 @@ STUDIP.podium = {
         $('#podiumwrapper input').focus();
         STUDIP.podium.load();
     },
+    close: function() {
+        if ($('#podiumwrapper').is(':visible')) {
+            STUDIP.podium.open();
+        }
+    },
     load: function () {
 
         // Get typed value
@@ -122,8 +127,8 @@ STUDIP.podium = {
             var selectedItem = list.find('.selected');
             var currentIndex = resultList.index(selectedItem);
             switch (e.which) {
-                case 27:
-                    $('#podiumwrapper').fadeOut(400);
+                case 27: // escape
+                    STUDIP.podium.close();
                     break;
                 case 13: // enter
                     var elem = list.find('a.selected');
