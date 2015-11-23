@@ -26,6 +26,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
         PageLayout::addBodyElements(Assets::img('icons/32/white/search.png', array('id' => 'podiumicon')));
 
         /* Init default types */
+        //self::addType('navigation', _('Navigation'), array($this, 'search_navigation'), array($this, 'filter_navigation'));
         self::addType('mycourses', _('Meine Veranstaltungen'), array($this, 'search_mycourse'), array($this, 'filter_course'));
         self::addType('courses', _('Veranstaltungen'), array($this, 'search_course'), array($this, 'filter_course'));
         self::addType('user', _('Benutzer'), array($this, 'search_user'), array($this, 'filter_user'));
@@ -83,6 +84,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
         $stmt->execute();
 
         $result = array();
+
         while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
             if (sizeof($result[$data['type']]['content']) < 6) {
                 if ($item = $types[$data['type']]['filter']($data['id'], $search)) {
@@ -199,7 +201,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
 
         // if you're no admin respekt visibilty
         if (!$GLOBALS['perm']->have_perm('admin')) {
-            $visQuery = get_vis_query('user', 'search'). " AND ";
+            $visQuery = get_vis_query('user', 'search') . " AND ";
         }
         $query = DBManager::get()->quote("%$search%");
         $sql = "SELECT 'user' as type, user.user_id as id FROM auth_user_md5 user LEFT JOIN user_visibility USING (user_id) WHERE $visQuery (CONCAT_WS(' ', user.nachname, user.vorname) LIKE $query OR  CONCAT_WS(' ', user.vorname, user.nachname) LIKE $query OR username LIKE $query)";
@@ -216,7 +218,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
             'additional' => self::mark($user->username, $search),
             'expand' => URLHelper::getURL("browse.php", array('name' => $search)),
         );
-        $avatar =  Avatar::getAvatar($user->id);
+        $avatar = Avatar::getAvatar($user->id);
         if (self::SHOW_ALL_AVATARS || $avatar->is_customized()) {
             $result['img'] = $avatar->getUrl(AVATAR::MEDIUM);
         }
@@ -317,6 +319,45 @@ class Podium extends StudIPPlugin implements SystemPlugin
             $result['img'] = $avatar->getUrl(AVATAR::MEDIUM);
         }
         return $result;
+    }
+
+    private function search_navigation($search)
+    {
+        if (!$search) {
+            return null;
+        }
+
+        $result = array();
+        $start = Navigation::getItem('/');
+        foreach ($start->getSubNavigation() as $index => $sub) {
+            $this->search_nav_recursive($sub, '', $index, $search, $result);
+        }
+
+        if (!$result) {
+            return null;
+        }
+        return "SELECT type,id FROM (".join(' UNION ',$result).") as navtable";
+    }
+
+    private function search_nav_recursive(Navigation $navigation, $path, $index, $search, &$result)
+    {
+        $fullpath = $path.'/'.$index;
+        if (mb_strpos($navigation->getTitle(), $search) !== false) {
+            $quotedPath = DBManager::get()->quote($fullpath);
+            $result[] = "(SELECT 'navigation' as type, $quotedPath as id)";
+        }
+        foreach ($navigation->getSubNavigation() as $newindex => $sub) {
+            $this->search_nav_recursive($sub, $fullpath, $newindex, $search, $result);
+        }
+    }
+
+    private function filter_navigation($nav_path, $search) {
+        $nav = Navigation::getItem($nav_path);
+        return array(
+            'name' => self::mark($nav->getTitle(), $search),
+            'url' => $nav->getUrl(),
+            'additional' => $nav_path
+        );
     }
 
 }
