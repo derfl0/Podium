@@ -1,9 +1,9 @@
 $(document).ready(function () {
-    STUDIP.podium.init();
+    STUDIP.Podium.init();
 });
 
 // Quickfile loader
-STUDIP.podium = {
+STUDIP.Podium = {
 
     // Edit this value if to many requests are fired
     keyTimeout: 300,
@@ -15,34 +15,34 @@ STUDIP.podium = {
     current: false,
     active: false,
     open: function () {
-        STUDIP.podium.active = true;
+        STUDIP.Podium.active = true;
         $('#podiumicon').addClass('visible');
         // Podiumwindow
-        $('#podiumwrapper').stop(true, true).fadeIn(STUDIP.podium.fadeTime);
+        $('#podiumwrapper').stop(true, true).fadeIn(STUDIP.Podium.fadeTime);
         $('#podiumwrapper input').focus();
-        STUDIP.podium.load();
+        STUDIP.Podium.load();
     },
     close: function () {
-        STUDIP.podium.active = false;
+        STUDIP.Podium.active = false;
         $('#podiumicon').removeClass('visible');
-        $('#podiumwrapper').stop(true, true).fadeOut(STUDIP.podium.fadeTime);
+        $('#podiumwrapper').stop(true, true).fadeOut(STUDIP.Podium.fadeTime);
     },
     toggle: function() {
-        if (STUDIP.podium.active) {
-            STUDIP.podium.close();
+        if (STUDIP.Podium.active) {
+            STUDIP.Podium.close();
         } else {
-            STUDIP.podium.open();
+            STUDIP.Podium.open();
         }
     },
     load: function () {
 
         // Get typed value
         var val = $('#podiuminput input').val();
-        if (STUDIP.podium.current !== val) {
-            if (STUDIP.podium.cache[val] != undefined) {
+        if (STUDIP.Podium.current !== val) {
+            if (STUDIP.Podium.cache[val] != undefined) {
 
                 // Load from cache
-                STUDIP.podium.display(STUDIP.podium.cache[val]);
+                STUDIP.Podium.display(STUDIP.Podium.cache[val]);
             } else {
                 $('#podiuminput input').addClass('podium_ajax');
                 $.ajax({
@@ -51,12 +51,12 @@ STUDIP.podium = {
                     data: {search: val},
                     dataType: "json"
                 }).done(function (data) {
-                    STUDIP.podium.current = val;
+                    STUDIP.Podium.current = val;
                     // Cache result
-                    STUDIP.podium.cache[val] = data;
+                    STUDIP.Podium.cache[val] = data;
 
                     // Display
-                    STUDIP.podium.display(data);
+                    STUDIP.Podium.display(data);
                     $('#podiuminput input').removeClass('podium_ajax');
                 });
             }
@@ -90,8 +90,8 @@ STUDIP.podium = {
             list.append(result);
             result.append($('<p>', {text: val.name})).click(function (e) {
                 if (list.find('ul:visible').length === 1 ) {
-                    if (STUDIP.podium.getSelectedItem().attr('data-expand')) {
-                        window.location.href = STUDIP.podium.getSelectedItem().data().expand;
+                    if (STUDIP.Podium.getSelectedItem().attr('data-expand')) {
+                        window.location.href = STUDIP.Podium.getSelectedItem().data().expand;
                     }
                 } else {
                     $(this).addClass('expand');
@@ -138,12 +138,12 @@ STUDIP.podium = {
             //For descendants of menu_content being clicked, remove this check if you do not want to put constraint on descendants.
             if ($(e.target).closest('#podium').length)
                 return;
-            STUDIP.podium.close();
+            STUDIP.Podium.close();
         });
 
         // Move podiumicon
         $('form#quicksearch').after($('#podiumicon').click(function (e) {
-            STUDIP.podium.toggle();
+            STUDIP.Podium.toggle();
         }).show()).hide();
 
         // Keymapping
@@ -155,7 +155,7 @@ STUDIP.podium = {
             switch (e.which) {
                 case 27: // escape
                     e.preventDefault();
-                    STUDIP.podium.close();
+                    STUDIP.Podium.close();
                     break;
                 case 13: // enter
                     var elem = list.find('a.selected');
@@ -195,10 +195,10 @@ STUDIP.podium = {
                         list.find('.collapse').removeClass('collapse');
                     }
                 default:
-                    clearTimeout(STUDIP.podium.timeout);
-                    STUDIP.podium.timeout = setTimeout(function () {
-                        STUDIP.podium.load();
-                    }, STUDIP.podium.keyTimeout);
+                    clearTimeout(STUDIP.Podium.timeout);
+                    STUDIP.Podium.timeout = setTimeout(function () {
+                        STUDIP.Podium.load();
+                    }, STUDIP.Podium.keyTimeout);
             }
         });
 
@@ -210,7 +210,7 @@ STUDIP.podium = {
             /* ctrl + space */
             if (e.which === 32 && e.ctrlKey) {
                 e.preventDefault();
-                STUDIP.podium.toggle();
+                STUDIP.Podium.toggle();
             }
         });
 
