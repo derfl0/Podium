@@ -45,6 +45,7 @@ STUDIP.Podium = {
 
                 // Load from cache
                 STUDIP.Podium.display(STUDIP.Podium.cache[val]);
+                $('#podiuminput input').removeClass('podium_ajax');
             } else {
                 $('#podiuminput input').addClass('podium_ajax');
                 STUDIP.Podium.ajax = $.ajax({
