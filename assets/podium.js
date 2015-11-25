@@ -14,6 +14,8 @@ STUDIP.Podium = {
     cache: [],
     current: false,
     active: false,
+    ajax: $.ajax(),
+    requestFinished: false,
     open: function () {
         STUDIP.Podium.active = true;
         $('#podiumicon').addClass('visible');
@@ -45,7 +47,7 @@ STUDIP.Podium = {
                 STUDIP.Podium.display(STUDIP.Podium.cache[val]);
             } else {
                 $('#podiuminput input').addClass('podium_ajax');
-                $.ajax({
+                STUDIP.Podium.ajax = $.ajax({
                     method: "POST",
                     url: STUDIP.URLHelper.getURL('plugins.php/Podium/find'),
                     data: {search: val},
@@ -61,6 +63,7 @@ STUDIP.Podium = {
                 });
             }
         }
+        STUDIP.Podium.requestFinished = true;
     },
     getSelectedItem: function() {
       return $('#podium #podiumlist').find('.selected');
@@ -158,9 +161,11 @@ STUDIP.Podium = {
                     STUDIP.Podium.close();
                     break;
                 case 13: // enter
-                    var elem = list.find('a.selected');
-                    if (elem.length > 0) {
-                        window.location.href = elem.first().attr('href');
+                    if (STUDIP.Podium.requestFinished) {
+                        var elem = list.find('a.selected');
+                        if (elem.length > 0) {
+                            window.location.href = elem.first().attr('href');
+                        }
                     }
                     break;
                 case 38: // up
@@ -195,6 +200,8 @@ STUDIP.Podium = {
                         list.find('.collapse').removeClass('collapse');
                     }
                 default:
+                    STUDIP.Podium.ajax.abort();
+                    STUDIP.Podium.requestFinished = false;
                     clearTimeout(STUDIP.Podium.timeout);
                     STUDIP.Podium.timeout = setTimeout(function () {
                         STUDIP.Podium.load();
