@@ -107,11 +107,16 @@ div#podiumwrapper div#podium h3 {
   margin: 6px 6px -3px;
 }
 div#podiumwrapper div#podium div#podiuminput {
-  padding: 10px;
+  padding: 12px 8px 10px 8px;
 }
 div#podiumwrapper div#podium div#podiuminput input {
   width: 100%;
   box-sizing: border-box;
+  background-color: #e7ebf1;
+  border: 0;
+  border-bottom: solid #b8c2d5 1px;
+  line-height: 0;
+  font-size: 20px;
 }
 div#podiumwrapper div#podium div#podiuminput input.podium_ajax {
   background-image: url("http://localhost/31/public/assets/images//ajax_indicator_small.gif");
@@ -125,15 +130,15 @@ div#podiumwrapper div#podium ul {
   cursor: hand;
 }
 div#podiumwrapper div#podium ul li > p {
-  background-color: #a1aec7;
+  background-color: #899ab9;
+  border-top: solid #69767f 1px;
+  border-bottom: solid #69767f 1px;
   color: white;
   padding-left: 2px;
   font-size: 12px;
   margin: 0;
-  border-top: 1px solid #69767f;
 }
 div#podiumwrapper div#podium ul li ul li {
-  border-top: 1px solid #69767f;
   position: relative;
   background-color: white;
 }
@@ -163,6 +168,9 @@ div#podiumwrapper div#podium ul li ul li p + p {
   color: #3c454e;
   font-size: 0.7em;
   word-wrap: break-word;
+}
+div#podiumwrapper div#podium ul li ul li + li {
+  border-top: 1px solid #69767f;
 }
 div#podiumwrapper div#podium ul li ul:hover li.selected.selected {
   background-color: inherit;

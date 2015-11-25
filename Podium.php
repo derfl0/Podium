@@ -20,7 +20,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
         /* Init html and js */
         self::addStylesheet('/assets/style.less');
         PageLayout::addScript($this->getPluginURL() . '/assets/podium.js');
-        PageLayout::addBodyElements('<div id="podiumwrapper"><div id="podium"><h3>' . _('Podium') . '</h3><div id="podiuminput"><input type="text" placeholder="' . _('Suchbegriff') . '"></div><ul id="podiumlist"></ul></div></div>');
+        PageLayout::addBodyElements('<div id="podiumwrapper"><div id="podium"><div id="podiuminput"><input type="text" placeholder="' . _('Podium') . ' ' . _('Suche') . '"></div><ul id="podiumlist"></ul></div></div>');
 
         /* Add podium icon */
         PageLayout::addBodyElements(Assets::img('icons/32/white/search.png', array('id' => 'podiumicon')));
@@ -336,12 +336,12 @@ class Podium extends StudIPPlugin implements SystemPlugin
         if (!$result) {
             return null;
         }
-        return "SELECT type,id FROM (".join(' UNION ',$result).") as navtable";
+        return "SELECT type,id FROM (" . join(' UNION ', $result) . ") as navtable";
     }
 
     private function search_nav_recursive(Navigation $navigation, $path, $index, $search, &$result)
     {
-        $fullpath = $path.'/'.$index;
+        $fullpath = $path . '/' . $index;
         if (mb_strpos($navigation->getTitle(), $search) !== false) {
             $quotedPath = DBManager::get()->quote($fullpath);
             $result[] = "(SELECT 'navigation' as type, $quotedPath as id)";
@@ -351,7 +351,8 @@ class Podium extends StudIPPlugin implements SystemPlugin
         }
     }
 
-    private function filter_navigation($nav_path, $search) {
+    private function filter_navigation($nav_path, $search)
+    {
         $nav = Navigation::getItem($nav_path);
         return array(
             'name' => self::mark($nav->getTitle(), $search),

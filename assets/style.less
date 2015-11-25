@@ -20,10 +20,15 @@ div#podiumwrapper {
       margin: 6px 6px -3px;
     }
     div#podiuminput {
-      padding: 10px;
+      padding: 12px 8px 10px 8px;
       input {
         width: 100%;
         box-sizing: border-box;
+        background-color: @content-color-20;
+        border: 0;
+        border-bottom: solid @content-color-60 1px;
+        line-height: 0;
+        font-size: 20px;
         &.podium_ajax {
           background-image: url("@{image-path}/ajax_indicator_small.gif");
           background-repeat: no-repeat;
@@ -38,16 +43,16 @@ div#podiumwrapper {
       cursor: hand;
       li {
         & > p {
-          background-color: @content-color-80;
+          background-color: @content-color;
+          border-top: solid @light-gray-color 1px;
+          border-bottom: solid @light-gray-color 1px;
           color: white;
           padding-left: 2px;
           font-size: 12px;
           margin: 0;
-          border-top: 1px solid @light-gray-color;
         }
         ul {
           li {
-            border-top: 1px solid @light-gray-color;
             position: relative;
             background-color: white;
             div.podiumdate {
@@ -76,6 +81,9 @@ div#podiumwrapper {
                 font-size: 0.7em;
                 word-wrap: break-word;
               }
+            }
+            & + li {
+              border-top: 1px solid @light-gray-color;
             }
           }
           &:hover {
