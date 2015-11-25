@@ -4,25 +4,33 @@ $(document).ready(function () {
 
 // Quickfile loader
 STUDIP.podium = {
+
+    // Edit this value if to many requests are fired
+    keyTimeout: 300,
+    fadeTime: 300,
+
+    // Internal variables
     timeout: null,
     cache: [],
     current: false,
+    active: false,
     open: function () {
-
-        // icon
-        if ($('#podiumwrapper').is(':visible')) {
-            $('#podiumicon').removeClass('visible');
-        } else {
-            $('#podiumicon').addClass('visible');
-        }
-
+        STUDIP.podium.active = true;
+        $('#podiumicon').addClass('visible');
         // Podiumwindow
-        $('#podiumwrapper').fadeToggle(400);
+        $('#podiumwrapper').stop(true, true).fadeIn(STUDIP.podium.fadeTime);
         $('#podiumwrapper input').focus();
         STUDIP.podium.load();
     },
     close: function () {
-        if ($('#podiumwrapper').is(':visible')) {
+        STUDIP.podium.active = false;
+        $('#podiumicon').removeClass('visible');
+        $('#podiumwrapper').stop(true, true).fadeOut(STUDIP.podium.fadeTime);
+    },
+    toggle: function() {
+        if (STUDIP.podium.active) {
+            STUDIP.podium.close();
+        } else {
             STUDIP.podium.open();
         }
     },
@@ -135,7 +143,7 @@ STUDIP.podium = {
 
         // Move podiumicon
         $('form#quicksearch').after($('#podiumicon').click(function (e) {
-            STUDIP.podium.open();
+            STUDIP.podium.toggle();
         }).show()).hide();
 
         // Keymapping
@@ -192,7 +200,7 @@ STUDIP.podium = {
                     clearTimeout(STUDIP.podium.timeout);
                     STUDIP.podium.timeout = setTimeout(function () {
                         STUDIP.podium.load();
-                    }, 600);
+                    }, STUDIP.podium.keyTimeout);
             }
         });
 
@@ -204,7 +212,7 @@ STUDIP.podium = {
             /* ctrl + space */
             if (e.which === 32 && e.ctrlKey) {
                 e.preventDefault();
-                STUDIP.podium.open();
+                STUDIP.podium.toggle();
             }
 
             if (e.which === 27) {
