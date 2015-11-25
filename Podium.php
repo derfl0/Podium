@@ -27,6 +27,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
 
         /* Init default types */
         //self::addType('navigation', _('Navigation'), array($this, 'search_navigation'), array($this, 'filter_navigation'));
+        self::addType('calendar', _('Termine'), array($this, 'search_calendar'), array($this, 'filter_calendar'));
         self::addType('mycourses', _('Meine Veranstaltungen'), array($this, 'search_mycourse'), array($this, 'filter_course'));
         self::addType('courses', _('Veranstaltungen'), array($this, 'search_course'), array($this, 'filter_course'));
         self::addType('user', _('Benutzer'), array($this, 'search_user'), array($this, 'filter_user'));
@@ -361,4 +362,22 @@ class Podium extends StudIPPlugin implements SystemPlugin
         );
     }
 
+    private function search_calendar($query) {
+        $time = strtotime($query);
+        $endtime = $time + 86400;
+        $user_id = DBManager::get()->quote(User::findCurrent()->id);
+        if ($time) {
+            return "SELECT 'calendar' as type, termin_id as id FROM termine JOIN seminar_user ON (range_id = seminar_id) WHERE user_id = $user_id AND date BETWEEN $time AND $endtime ORDER BY date";
+        }
+    }
+
+    private function filter_calendar($termin_id, $search) {
+        $termin = DBManager::get()->fetchOne("SELECT name,date,end_time,seminar_id FROM termine JOIN seminare ON (range_id = seminar_id) WHERE termin_id = ?", array($termin_id));
+        return array(
+            'name' => $termin['name'],
+            'url' => URLHelper::getURL("dispatch.php/course/details", array('cid' => $termin['seminar_id'])),
+            'additional' => strftime('%H:%M', $termin['date']) . " - ".strftime('%H:%M', $termin['end_time']) . ", " . strftime('%x', $termin['date']),
+            'expand' => URLHelper::getURL('calendar.php', array('cmd' => 'showweek', 'atime' => strtotime($search)))
+        );
+    }
 }
