@@ -154,16 +154,15 @@ STUDIP.podium = {
             var currentIndex = resultList.index(selectedItem);
             switch (e.which) {
                 case 27: // escape
+                    e.preventDefault();
                     STUDIP.podium.close();
                     break;
                 case 13: // enter
                     var elem = list.find('a.selected');
-                    console.log(elem);
                     if (elem.length > 0) {
                         window.location.href = elem.first().attr('href');
                     }
                     break;
-
                 case 38: // up
                     e.preventDefault();
                     if (currentIndex > 0) {
@@ -171,7 +170,6 @@ STUDIP.podium = {
                         $(resultList[currentIndex - 1]).addClass('selected');
                     }
                     break;
-
                 case 40: // down
                     e.preventDefault();
                     if (resultList.size() - 1 > currentIndex) {
@@ -205,21 +203,14 @@ STUDIP.podium = {
         });
 
         // Set close and open
-        $(document).keydown(function (e) {
-
+        $(window).keydown(function (e) {
+            
             /* ctrl + shift + f */
             //if (e.which === 70 && e.ctrlKey && e.shiftKey) {
             /* ctrl + space */
             if (e.which === 32 && e.ctrlKey) {
                 e.preventDefault();
                 STUDIP.podium.toggle();
-            }
-
-            if (e.which === 27) {
-
-                // Prevent mac fullscreen
-                e.preventDefault();
-                $('#podiumwrapper').fadeOut(400);
             }
         });
 
