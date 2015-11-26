@@ -27,6 +27,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
 
         /* Init default types */
         //self::addType('navigation', _('Navigation'), array($this, 'search_navigation'), array($this, 'filter_navigation'));
+        self::addType('resources', _('Ressourcen'), array($this, 'search_resources'), array($this, 'filter_resources'));
         self::addType('calendar', _('Termine'), array($this, 'search_calendar'), array($this, 'filter_calendar'));
         self::addType('mycourses', _('Meine Veranstaltungen'), array($this, 'search_mycourse'), array($this, 'filter_course'));
         self::addType('courses', _('Veranstaltungen'), array($this, 'search_course'), array($this, 'filter_course'));
@@ -378,6 +379,24 @@ class Podium extends StudIPPlugin implements SystemPlugin
             'url' => URLHelper::getURL("dispatch.php/course/details", array('cid' => $termin['seminar_id'])),
             'additional' => strftime('%H:%M', $termin['date']) . " - ".strftime('%H:%M', $termin['end_time']) . ", " . strftime('%x', $termin['date']),
             'expand' => URLHelper::getURL('calendar.php', array('cmd' => 'showweek', 'atime' => strtotime($search)))
+        );
+    }
+
+    private function search_resources($search) {
+        if (!$search || !$GLOBALS['perm']->have_perm('admin')) {
+            return null;
+        }
+        $query = DBManager::get()->quote("%$search%");
+            return "SELECT 'resources' as type, resource_id as id FROM resources_objects WHERE name LIKE $query OR description LIKE $query OR REPLACE(name, ' ', '') LIKE $query OR REPLACE(description, ' ', '') LIKE $query";
+    }
+
+    private function filter_resources($resource_id, $search) {
+        $res = DBManager::get()->fetchOne("SELECT name,description FROM resources_objects WHERE resource_id = ?", array($resource_id));
+        return array(
+            'name' => self::mark($res['name'], $search),
+            'url' => URLHelper::getURL("resources.php", array('view'=>'view_schedule', 'show_object' => $resource_id)),
+            'additional' => self::mark($res['description'], $search),
+            'expand' => URLHelper::getURL('resources.php', array('view'=>'search', 'search_exp' => $search, 'start_search' => ''))
         );
     }
 }
