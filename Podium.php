@@ -20,10 +20,10 @@ class Podium extends StudIPPlugin implements SystemPlugin
         /* Init html and js */
         self::addStylesheet('/assets/style.less');
         PageLayout::addScript($this->getPluginURL() . '/assets/podium.js');
-        PageLayout::addBodyElements('<div id="podiumwrapper"><div id="podium"><div id="podiuminput"><input type="text" placeholder="' . _('Podium') . ' ' . _('Suche') . '"></div><ul id="podiumlist"></ul></div></div>');
+        PageLayout::addBodyElements('<div id="podiumwrapper"><div id="podium"><div id="podiuminput"><input type="text" placeholder="' . _('Suchbegriff') . '"></div><ul id="podiumlist"></ul></div></div>');
 
         /* Add podium icon */
-        PageLayout::addBodyElements(Assets::img('icons/32/white/search.png', array('id' => 'podiumicon')));
+        PageLayout::addBodyElements(Assets::img('icons/16/white/search.png', array('id' => 'podiumicon')));
 
         /* Init default types */
         //self::addType('navigation', _('Navigation'), array($this, 'search_navigation'), array($this, 'filter_navigation'));
