@@ -201,7 +201,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
             return null;
         }
 
-        // if you're no admin respekt visibilty
+        // if you're no admin respect visibilty
         if (!$GLOBALS['perm']->have_perm('admin')) {
             $visQuery = get_vis_query('user', 'search') . " AND ";
         }
