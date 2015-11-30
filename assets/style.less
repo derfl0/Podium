@@ -1,3 +1,6 @@
+// If you want to make podium transparent
+@opacity: 100%;
+
 div#podiumwrapper {
   top: 18%;
   width: 100%;
@@ -9,7 +12,6 @@ div#podiumwrapper {
     width: 420px;
     margin: 0 auto;
     top: 30%;
-    background-color: @content-color-20;
     border: 1px solid @base-color;
     box-shadow: 4px 4px 6px 0px rgba(0, 0, 0, 0.4);
     mark {
@@ -20,7 +22,7 @@ div#podiumwrapper {
       margin: 6px 6px -3px;
     }
     div#podiuminput {
-      background-color: @content-color-20;
+      background-color: fade(@content-color-20, @opacity);
       .retina-background-icon('grey/search.png');
       background-repeat: no-repeat;
       background-position: center left 8px;
@@ -47,7 +49,7 @@ div#podiumwrapper {
       cursor: hand;
       li {
         & > p {
-          background-color: @content-color;
+          background-color: fade(@content-color, @opacity);
           border-top: solid @light-gray-color 1px;
           border-bottom: solid @light-gray-color 1px;
           color: white;
@@ -58,7 +60,7 @@ div#podiumwrapper {
         ul {
           li {
             position: relative;
-            background-color: white;
+            background-color: fade(white, @opacity);
             div.podiumdate {
               position: absolute;
               top: 0;
@@ -71,7 +73,7 @@ div#podiumwrapper {
               padding: 6px;
               word-wrap: break-word;
               &.selected {
-                background: @base-color-40;
+                background: fade(@base-color-40, @opacity);
               }
               img {
                 margin-right: 8px;
