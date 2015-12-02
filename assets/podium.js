@@ -14,7 +14,6 @@ STUDIP.Podium = {
     cache: [],
     current: false,
     active: false,
-    ajax: $.ajax(),
     requestFinished: false,
     open: function () {
         STUDIP.Podium.active = true;
@@ -212,7 +211,7 @@ STUDIP.Podium = {
 
         // Set close and open
         $(window).keydown(function (e) {
-            
+
             /* ctrl + shift + f */
             //if (e.which === 70 && e.ctrlKey && e.shiftKey) {
             /* ctrl + space */
