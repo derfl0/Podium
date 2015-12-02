@@ -78,8 +78,8 @@ class Podium extends StudIPPlugin implements SystemPlugin
                 $sql[] = "(" . $type['sql']($search) . " LIMIT 10)";
             }
         }
-
-        $fullSQL = join(' UNION ', $sql);
+        
+        $fullSQL = "SELECT type, id FROM (".join(' UNION ', $sql).") as a GROUP BY id";
 
         // now query
         $stmt = DBManager::get()->prepare($fullSQL);
