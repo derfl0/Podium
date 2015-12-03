@@ -135,13 +135,13 @@ STUDIP.Podium = {
     init: function () {
 
         // Bind click outside podium
-        $('html').click(function (e) {
-            if (e.target.id == "podium" || e.target.id == "podiumicon")
-                return;
-            //For descendants of menu_content being clicked, remove this check if you do not want to put constraint on descendants.
-            if ($(e.target).closest('#podium').length)
-                return;
-            STUDIP.Podium.close();
+        $(document).mouseup(function (e) {
+            if (!$("#podium").is(e.target)
+                && !$("#podiumicon").is(e.target)
+                && $("#podium").has(e.target).length === 0
+                && $("#podiumicon").has(e.target).length === 0) {
+                STUDIP.Podium.close();
+            }
         });
 
         // Move podiumicon
