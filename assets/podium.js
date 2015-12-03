@@ -2,7 +2,7 @@ $(document).ready(function () {
     STUDIP.Podium.init();
 });
 
-// Quickfile loader
+// Podium loader
 STUDIP.Podium = {
 
     // Edit this value if to many requests are fired
