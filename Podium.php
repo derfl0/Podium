@@ -260,7 +260,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
         $result = array(
             'id' => $course->id,
             'name' => self::mark($course->getFullname(), $search),
-            'url' => URLHelper::getURL("dispatch.php/course/details", array('cid' => $course->id)),
+            'url' => URLHelper::getURL("dispatch.php/course/details/index/".$course->id),
             'date' => $course->start_semester->name,
             'expand' => URLHelper::getURL("dispatch.php/search/courses", array(
                 'reset_all' => 1,
