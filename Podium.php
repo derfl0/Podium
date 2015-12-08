@@ -35,6 +35,11 @@ class Podium extends StudIPPlugin implements SystemPlugin
         self::addType('file', _('Datei'), array($this, 'search_files'), array($this, 'filter_file'));
         self::addType('inst', _('Einrichtungen'), array($this, 'search_inst'), array($this, 'filter_inst'));
         self::addType('semtree', _('Studienbereiche'), array($this, 'search_semtree'), array($this, 'filter_semtree'));
+
+        /* Add podium navigation */
+        Navigation::addItem('/admin/podium', new AutoNavigation(dgettext('podium', 'Podium'), PluginEngine::GetURL($this, array(), 'settings/modules')));
+        Navigation::addItem('/admin/podium/modules', new AutoNavigation(dgettext('podium', 'Module'), PluginEngine::GetURL($this, array(), 'settings/modules')));
+        Navigation::addItem('/admin/podium/faillog', new AutoNavigation(dgettext('podium', 'Erfolglose Suchen'), PluginEngine::GetURL($this, array(), 'settings/faillog')));
     }
 
     /**
@@ -63,6 +68,11 @@ class Podium extends StudIPPlugin implements SystemPlugin
         unset(self::$types[$index]);
     }
 
+    public static function getTypes()
+    {
+        return self::$types;
+    }
+
     /**
      * Kickoff function to start query
      */
@@ -78,8 +88,8 @@ class Podium extends StudIPPlugin implements SystemPlugin
                 $sql[] = "(" . $type['sql']($search) . " LIMIT 10)";
             }
         }
-        
-        $fullSQL = "SELECT type, id FROM (".join(' UNION ', $sql).") as a GROUP BY id";
+
+        $fullSQL = "SELECT type, id FROM (" . join(' UNION ', $sql) . ") as a GROUP BY id";
 
         // now query
         $stmt = DBManager::get()->prepare($fullSQL);
@@ -94,6 +104,11 @@ class Podium extends StudIPPlugin implements SystemPlugin
                     $result[$data['type']]['content'][] = $item;
                 }
             }
+        }
+
+        // Write faillog if required
+        if (!$result && Config::get()->PODIUM_FAILLOG) {
+            DBManager::get()->execute("INSERT INTO podium_faillog (input, count) VALUES (?, 1) ON DUPLICATE KEY UPDATE count=count+1", array($search));
         }
 
         // Send me an answer
@@ -260,7 +275,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
         $result = array(
             'id' => $course->id,
             'name' => self::mark($course->getFullname(), $search),
-            'url' => URLHelper::getURL("dispatch.php/course/details/index/".$course->id),
+            'url' => URLHelper::getURL("dispatch.php/course/details/index/" . $course->id),
             'date' => $course->start_semester->name,
             'expand' => URLHelper::getURL("dispatch.php/search/courses", array(
                 'reset_all' => 1,
@@ -363,7 +378,8 @@ class Podium extends StudIPPlugin implements SystemPlugin
         );
     }
 
-    private function search_calendar($query) {
+    private function search_calendar($query)
+    {
         $time = strtotime($query);
         $endtime = $time + 86400;
         $user_id = DBManager::get()->quote(User::findCurrent()->id);
@@ -372,31 +388,34 @@ class Podium extends StudIPPlugin implements SystemPlugin
         }
     }
 
-    private function filter_calendar($termin_id, $search) {
+    private function filter_calendar($termin_id, $search)
+    {
         $termin = DBManager::get()->fetchOne("SELECT name,date,end_time,seminar_id FROM termine JOIN seminare ON (range_id = seminar_id) WHERE termin_id = ?", array($termin_id));
         return array(
             'name' => $termin['name'],
             'url' => URLHelper::getURL("dispatch.php/course/details", array('cid' => $termin['seminar_id'])),
-            'additional' => strftime('%H:%M', $termin['date']) . " - ".strftime('%H:%M', $termin['end_time']) . ", " . strftime('%x', $termin['date']),
+            'additional' => strftime('%H:%M', $termin['date']) . " - " . strftime('%H:%M', $termin['end_time']) . ", " . strftime('%x', $termin['date']),
             'expand' => URLHelper::getURL('calendar.php', array('cmd' => 'showweek', 'atime' => strtotime($search)))
         );
     }
 
-    private function search_resources($search) {
+    private function search_resources($search)
+    {
         if (!$search || !$GLOBALS['perm']->have_perm('admin')) {
             return null;
         }
         $query = DBManager::get()->quote("%$search%");
-            return "SELECT 'resources' as type, resource_id as id FROM resources_objects WHERE name LIKE $query OR description LIKE $query OR REPLACE(name, ' ', '') LIKE $query OR REPLACE(description, ' ', '') LIKE $query";
+        return "SELECT 'resources' as type, resource_id as id FROM resources_objects WHERE name LIKE $query OR description LIKE $query OR REPLACE(name, ' ', '') LIKE $query OR REPLACE(description, ' ', '') LIKE $query";
     }
 
-    private function filter_resources($resource_id, $search) {
+    private function filter_resources($resource_id, $search)
+    {
         $res = DBManager::get()->fetchOne("SELECT name,description FROM resources_objects WHERE resource_id = ?", array($resource_id));
         return array(
             'name' => self::mark($res['name'], $search),
-            'url' => URLHelper::getURL("resources.php", array('view'=>'view_schedule', 'show_object' => $resource_id)),
+            'url' => URLHelper::getURL("resources.php", array('view' => 'view_schedule', 'show_object' => $resource_id)),
             'additional' => self::mark($res['description'], $search),
-            'expand' => URLHelper::getURL('resources.php', array('view'=>'search', 'search_exp' => $search, 'start_search' => ''))
+            'expand' => URLHelper::getURL('resources.php', array('view' => 'search', 'search_exp' => $search, 'start_search' => ''))
         );
     }
 }
