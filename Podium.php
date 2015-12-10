@@ -27,6 +27,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
 
         /* Init default types */
         //self::addType('navigation', _('Navigation'), array($this, 'search_navigation'), array($this, 'filter_navigation'));
+        self::addType('buzzword', _('Stichworte'), array($this, 'search_buzzwords'), array($this, 'filter_buzzwords'));
         self::addType('resources', _('Ressourcen'), array($this, 'search_resources'), array($this, 'filter_resources'));
         self::addType('calendar', _('Termine'), array($this, 'search_calendar'), array($this, 'filter_calendar'));
         self::addType('mycourses', _('Meine Veranstaltungen'), array($this, 'search_mycourse'), array($this, 'filter_course'));
@@ -37,9 +38,14 @@ class Podium extends StudIPPlugin implements SystemPlugin
         self::addType('semtree', _('Studienbereiche'), array($this, 'search_semtree'), array($this, 'filter_semtree'));
 
         /* Add podium navigation */
-        Navigation::addItem('/admin/podium', new AutoNavigation(dgettext('podium', 'Podium'), PluginEngine::GetURL($this, array(), 'settings/modules')));
-        Navigation::addItem('/admin/podium/modules', new AutoNavigation(dgettext('podium', 'Module'), PluginEngine::GetURL($this, array(), 'settings/modules')));
-        Navigation::addItem('/admin/podium/faillog', new AutoNavigation(dgettext('podium', 'Erfolglose Suchen'), PluginEngine::GetURL($this, array(), 'settings/faillog')));
+        try {
+            Navigation::addItem('/admin/podium', new AutoNavigation(dgettext('podium', 'Podium'), PluginEngine::GetURL($this, array(), 'settings/modules')));
+            Navigation::addItem('/admin/podium/modules', new AutoNavigation(dgettext('podium', 'Module'), PluginEngine::GetURL($this, array(), 'settings/modules')));
+            Navigation::addItem('/admin/podium/buzzword', new AutoNavigation(dgettext('podium', 'Stichworte'), PluginEngine::GetURL($this, array(), 'settings/buzzwords')));
+            Navigation::addItem('/admin/podium/faillog', new AutoNavigation(dgettext('podium', 'Erfolglose Suchen'), PluginEngine::GetURL($this, array(), 'settings/faillog')));
+        } catch(InvalidArgumentException $e) {
+
+        }
     }
 
     /**
@@ -416,6 +422,26 @@ class Podium extends StudIPPlugin implements SystemPlugin
             'url' => URLHelper::getURL("resources.php", array('view' => 'view_schedule', 'show_object' => $resource_id)),
             'additional' => self::mark($res['description'], $search),
             'expand' => URLHelper::getURL('resources.php', array('view' => 'search', 'search_exp' => $search, 'start_search' => ''))
+        );
+    }
+
+    private function search_buzzwords($search) {
+        if (!$search) {
+            return null;
+        }
+
+        $query = DBManager::get()->quote("%$search%");
+        $rights = $GLOBALS['perm']->permissions[$GLOBALS['perm']->get_perm()];
+        return "SELECT 'buzzword' as type, buzz_id as id FROM podium_buzzwords WHERE buzzwords LIKE $query AND $rights >= rights";
+    }
+
+    private function filter_buzzwords($buzz_id, $search)
+    {
+        $buzz = DBManager::get()->fetchOne("SELECT * FROM podium_buzzwords WHERE buzz_id = ?", array($buzz_id));
+        return array(
+            'name' => htmlReady($buzz['name']),
+            'url' => $buzz['url'],
+            'additional' => $buzz['subtitle']
         );
     }
 }
