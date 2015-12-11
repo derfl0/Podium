@@ -1,5 +1,5 @@
 <?php
-
+require "PodiumModule.php";
 /**
  * Podium.php
  *
@@ -27,7 +27,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
 
         /* Init default types */
         //self::addType('navigation', _('Navigation'), array($this, 'search_navigation'), array($this, 'filter_navigation'));
-        self::addType('buzzword', _('Stichworte'), array($this, 'search_buzzwords'), array($this, 'filter_buzzwords'));
+        //self::addType('buzzword', _('Stichworte'), array($this, 'search_buzzwords'), array($this, 'filter_buzzwords'));
         self::addType('resources', _('Ressourcen'), array($this, 'search_resources'), array($this, 'filter_resources'));
         self::addType('calendar', _('Termine'), array($this, 'search_calendar'), array($this, 'filter_calendar'));
         self::addType('mycourses', _('Meine Veranstaltungen'), array($this, 'search_mycourse'), array($this, 'filter_course'));
@@ -37,6 +37,9 @@ class Podium extends StudIPPlugin implements SystemPlugin
         self::addType('inst', _('Einrichtungen'), array($this, 'search_inst'), array($this, 'filter_inst'));
         self::addType('semtree', _('Studienbereiche'), array($this, 'search_semtree'), array($this, 'filter_semtree'));
 
+        require_once "modules/PodiumBuzzwordModule.php";
+        PodiumBuzzwordModule::register();
+
         /* Add podium navigation */
         try {
             Navigation::addItem('/admin/podium', new AutoNavigation(dgettext('podium', 'Podium'), PluginEngine::GetURL($this, array(), 'settings/modules')));
@@ -45,6 +48,18 @@ class Podium extends StudIPPlugin implements SystemPlugin
             Navigation::addItem('/admin/podium/faillog', new AutoNavigation(dgettext('podium', 'Erfolglose Suchen'), PluginEngine::GetURL($this, array(), 'settings/faillog')));
         } catch(InvalidArgumentException $e) {
 
+        }
+    }
+
+    public static function register($class) {
+        $reflector = new ReflectionClass($class);
+        $_SESSION['podium'][$reflector->getName()] = $reflector->getFileName();
+    }
+
+    private static function loadClasses() {
+        foreach ($_SESSION['podium'] as $class => $filename) {
+            require_once $filename;
+            self::addType($class::getId(), $class::getName(), array($class, 'search'), array($class, 'filter'));
         }
     }
 
@@ -84,6 +99,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
      */
     public function find_action()
     {
+        self::loadClasses();
         $types = self::$types;
 
         $search = trim(studip_utf8decode(Request::get('search')));
@@ -100,7 +116,6 @@ class Podium extends StudIPPlugin implements SystemPlugin
         // now query
         $stmt = DBManager::get()->prepare($fullSQL);
         $stmt->execute();
-
         $result = array();
 
         while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -422,26 +437,6 @@ class Podium extends StudIPPlugin implements SystemPlugin
             'url' => URLHelper::getURL("resources.php", array('view' => 'view_schedule', 'show_object' => $resource_id)),
             'additional' => self::mark($res['description'], $search),
             'expand' => URLHelper::getURL('resources.php', array('view' => 'search', 'search_exp' => $search, 'start_search' => ''))
-        );
-    }
-
-    private function search_buzzwords($search) {
-        if (!$search) {
-            return null;
-        }
-
-        $query = DBManager::get()->quote("%$search%");
-        $rights = $GLOBALS['perm']->permissions[$GLOBALS['perm']->get_perm()];
-        return "SELECT 'buzzword' as type, buzz_id as id FROM podium_buzzwords WHERE buzzwords LIKE $query AND $rights >= rights";
-    }
-
-    private function filter_buzzwords($buzz_id, $search)
-    {
-        $buzz = DBManager::get()->fetchOne("SELECT * FROM podium_buzzwords WHERE buzz_id = ?", array($buzz_id));
-        return array(
-            'name' => htmlReady($buzz['name']),
-            'url' => $buzz['url'],
-            'additional' => $buzz['subtitle']
         );
     }
 }
