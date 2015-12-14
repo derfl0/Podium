@@ -1,35 +1,28 @@
 <?php
 
 /**
- * Created by PhpStorm.
- * User: intelec
- * Date: 11.12.15
- * Time: 10:58
+ * Interface PodiumModule
+ *
+ * Module for Podium extension
  */
-class PodiumModule
+interface PodiumModule
 {
 
-    public static function search($search) {
-        if (!$search) {
-            return null;
-        }
-    }
+    /**
+     * Returns the id for this podium module. The search sql must also return this id as type
+     *
+     * @return String id for this module
+     */
+    public static function getPodiumId();
 
-    public static function getId() {
-        return get_called_class();
-    }
+    /**
+     * Returns the displayname for this module
+     *
+     * @return mixed
+     */
+    public static function getPodiumName();
 
-    public static function getName() {
-        return get_called_class();
-    }
+    public static function getPodiumSearch($search);
 
-    public static function filter($id, $search) {
-        return array(
-            'name' => _('Dummy Module')
-        );
-    }
-
-    public static function register() {
-        Podium::register(get_called_class());
-    }
+    public static function podiumFilter($id, $search);
 }

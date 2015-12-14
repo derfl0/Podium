@@ -12,6 +12,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
     const SHOW_ALL_AVATARS = false;
 
     private static $types = array();
+    private static $classes = array();
 
     public function __construct()
     {
@@ -37,8 +38,8 @@ class Podium extends StudIPPlugin implements SystemPlugin
         self::addType('inst', _('Einrichtungen'), array($this, 'search_inst'), array($this, 'filter_inst'));
         self::addType('semtree', _('Studienbereiche'), array($this, 'search_semtree'), array($this, 'filter_semtree'));
 
-        require_once "modules/PodiumBuzzwordModule.php";
-        PodiumBuzzwordModule::register();
+        require_once "models/PodiumBuzzword.php";
+        Podium::register('PodiumBuzzword');
 
         /* Add podium navigation */
         try {
@@ -52,14 +53,12 @@ class Podium extends StudIPPlugin implements SystemPlugin
     }
 
     public static function register($class) {
-        $reflector = new ReflectionClass($class);
-        $_SESSION['podium'][$reflector->getName()] = $reflector->getFileName();
+        self::$classes[] = $class;
     }
 
     private static function loadClasses() {
-        foreach ($_SESSION['podium'] as $class => $filename) {
-            require_once $filename;
-            self::addType($class::getId(), $class::getName(), array($class, 'search'), array($class, 'filter'));
+        foreach (self::$classes as $class) {
+            self::addType($class::getPodiumId(), $class::getPodiumName(), array($class, 'getPodiumSearch'), array($class, 'podiumFilter'));
         }
     }
 
@@ -91,6 +90,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
 
     public static function getTypes()
     {
+        self::loadClasses();
         return self::$types;
     }
 
