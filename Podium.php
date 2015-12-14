@@ -78,31 +78,29 @@ class Podium extends StudIPPlugin implements SystemPlugin
         }
     }
 
-    /**
-     * Kickoff function to start query
-     */
-    public function find_action()
-    {
+    private static function getSQL($search) {
         // register all classes
         Podium::loadDefaultModules();
 
-        // load types
-        $types = self::$types;
-
-        $search = trim(studip_utf8decode(Request::get('search')));
-
-        foreach ($types as $type) {
+        // build all types
+        foreach (self::$types as $type) {
             $partSQL = $type['sql']($search);
             if ($partSQL) {
                 $sql[] = "(" . $type['sql']($search) . " LIMIT 10)";
             }
         }
 
-        $fullSQL = "SELECT type, id FROM (" . join(' UNION ', $sql) . ") as a GROUP BY id";
+        return "SELECT type, id FROM (" . join(' UNION ', $sql) . ") as a GROUP BY id";
+    }
 
-        // now query
-        $stmt = DBManager::get()->prepare($fullSQL);
-        $stmt->execute();
+    /**
+     * Kickoff function to start query
+     */
+    public function find_action()
+    {
+        $search = trim(studip_utf8decode(Request::get('search')));
+        $stmt = DBManager::get()->query(self::getSQL($search));
+        $types = self::$types;
         $result = array();
 
         while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
