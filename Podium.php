@@ -1,5 +1,5 @@
 <?php
-
+require "PodiumModule.php";
 /**
  * Podium.php
  *
@@ -10,6 +10,7 @@
 class Podium extends StudIPPlugin implements SystemPlugin
 {
     const SHOW_ALL_AVATARS = false;
+    const MAX_RESULT_OF_TYPE = 6;
 
     private static $types = array();
 
@@ -25,18 +26,6 @@ class Podium extends StudIPPlugin implements SystemPlugin
         /* Add podium icon */
         PageLayout::addBodyElements(Assets::img('icons/16/white/search.png', array('id' => 'podiumicon')));
 
-        /* Init default types */
-        //self::addType('navigation', _('Navigation'), array($this, 'search_navigation'), array($this, 'filter_navigation'));
-        self::addType('buzzword', _('Stichworte'), array($this, 'search_buzzwords'), array($this, 'filter_buzzwords'));
-        self::addType('resources', _('Ressourcen'), array($this, 'search_resources'), array($this, 'filter_resources'));
-        self::addType('calendar', _('Termine'), array($this, 'search_calendar'), array($this, 'filter_calendar'));
-        self::addType('mycourses', _('Meine Veranstaltungen'), array($this, 'search_mycourse'), array($this, 'filter_course'));
-        self::addType('courses', _('Veranstaltungen'), array($this, 'search_course'), array($this, 'filter_course'));
-        self::addType('user', _('Benutzer'), array($this, 'search_user'), array($this, 'filter_user'));
-        self::addType('file', _('Datei'), array($this, 'search_files'), array($this, 'filter_file'));
-        self::addType('inst', _('Einrichtungen'), array($this, 'search_inst'), array($this, 'filter_inst'));
-        self::addType('semtree', _('Studienbereiche'), array($this, 'search_semtree'), array($this, 'filter_semtree'));
-
         /* Add podium navigation */
         try {
             Navigation::addItem('/admin/podium', new AutoNavigation(dgettext('podium', 'Podium'), PluginEngine::GetURL($this, array(), 'settings/modules')));
@@ -46,6 +35,14 @@ class Podium extends StudIPPlugin implements SystemPlugin
         } catch(InvalidArgumentException $e) {
 
         }
+    }
+
+    /**
+     * Adds an PodiumModule to the search (must implement PodiumModule)
+     * @param $class Your search class
+     */
+    public static function registerPodiumModule($class) {
+        self::addType($class::getPodiumId(), $class::getPodiumName(), array($class, 'getPodiumSearch'), array($class, 'podiumFilter'));
     }
 
     /**
@@ -79,32 +76,40 @@ class Podium extends StudIPPlugin implements SystemPlugin
         return self::$types;
     }
 
-    /**
-     * Kickoff function to start query
-     */
-    public function find_action()
-    {
-        $types = self::$types;
+    private static function loadDefaultModules() {
+        foreach (glob(__DIR__.'/models/*.php') as $file) {
+            require $file;
+            Podium::registerPodiumModule(basename($file, '.php'));
+        }
+    }
 
-        $search = trim(studip_utf8decode(Request::get('search')));
+    private static function getSQL($search) {
+        // register all classes
+        Podium::loadDefaultModules();
 
-        foreach ($types as $type) {
+        // build all types
+        foreach (self::$types as $type) {
             $partSQL = $type['sql']($search);
             if ($partSQL) {
                 $sql[] = "(" . $type['sql']($search) . " LIMIT 10)";
             }
         }
 
-        $fullSQL = "SELECT type, id FROM (" . join(' UNION ', $sql) . ") as a GROUP BY id";
+        return "SELECT type, id FROM (" . join(' UNION ', $sql) . ") as a GROUP BY id";
+    }
 
-        // now query
-        $stmt = DBManager::get()->prepare($fullSQL);
-        $stmt->execute();
-
+    /**
+     * Kickoff function to start query
+     */
+    public function find_action()
+    {
+        $search = trim(studip_utf8decode(Request::get('search')));
+        $stmt = DBManager::get()->query(self::getSQL($search));
+        $types = self::$types;
         $result = array();
 
         while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            if (sizeof($result[$data['type']]['content']) < 6) {
+            if (sizeof($result[$data['type']]['content']) < self::MAX_RESULT_OF_TYPE) {
                 if ($item = $types[$data['type']]['filter']($data['id'], $search)) {
                     $result[$data['type']]['name'] = $types[$data['type']]['name'];
                     $result[$data['type']]['content'][] = $item;
@@ -162,286 +167,5 @@ class Podium extends StudIPPlugin implements SystemPlugin
             return $result;
         }
         return $string;
-    }
-
-    /*
-     * ###DEFAULT FUNCTIONS!
-     */
-
-    private function search_files($search)
-    {
-        // Filter for own courses
-        if (!$GLOBALS['perm']->have_perm('admin')) {
-            if (!$GLOBALS['perm']->have_perm('admin')) {
-                $user = DBManager::get()->quote(User::findCurrent()->id);
-            }
-            $ownseminars = "JOIN seminar_user ON (dokumente.seminar_id = seminar_user.seminar_id AND seminar_user.user_id = $user) ";
-        }
-
-        // Now check if we got a seminar
-        if (strpos($search, '/') !== FALSE) {
-            $args = explode('/', $search);
-            $prequery = DBManager::get()->quote("%" . trim($args[0]) . "%");
-            $query = DBManager::get()->quote("%" . trim($args[1]) . "%");
-            $binary = DBManager::get()->quote('%' . join('%', str_split(strtoupper(trim($args[0])))) . '%');
-            $comp = "AND";
-        } else {
-            $query = DBManager::get()->quote("%$search%");
-            $prequery = $query;
-            $comp = "OR";
-            $binary = DBManager::get()->quote('%' . join('%', str_split(strtoupper($search))) . '%');
-        }
-
-        // Build query
-        $sql = "SELECT 'file' as type, dokumente.dokument_id as id FROM dokumente "
-            . "JOIN seminare USING (seminar_id) $ownseminars $usersearch "
-            . "WHERE (seminare.name LIKE BINARY $binary OR seminare.name LIKE $prequery $usercondition) "
-            . "$comp dokumente.name LIKE $query "
-            . "ORDER BY dokumente.chdate DESC";
-        return $sql;
-    }
-
-    private function filter_file($file_id, $search)
-    {
-        $file = StudipDocument::find($file_id);
-        if ($file->checkAccess(User::findCurrent()->id)) {
-            return array(
-                'id' => $file->id,
-                'name' => self::mark($file->name, $search),
-                'url' => URLHelper::getURL("sendfile.php?type=0&file_id={$file->id}&file_name={$file->filename}"),
-                'additional' => self::mark($file->course ? $file->course->getFullname() : '', $search, false),
-                'date' => strftime('%x', $file->chdate),
-                'expand' => URLHelper::getURL("folder.php", array("cid" => $file->seminar_id, "cmd" => "tree"))
-            );
-        }
-    }
-
-    private function search_user($search)
-    {
-        if (!$search) {
-            return null;
-        }
-
-        // if you're no admin respect visibilty
-        if (!$GLOBALS['perm']->have_perm('admin')) {
-            $visQuery = get_vis_query('user', 'search') . " AND ";
-        }
-        $query = DBManager::get()->quote("%$search%");
-        $sql = "SELECT 'user' as type, user.user_id as id FROM auth_user_md5 user LEFT JOIN user_visibility USING (user_id) WHERE $visQuery (CONCAT_WS(' ', user.nachname, user.vorname) LIKE $query OR  CONCAT_WS(' ', user.vorname, user.nachname) LIKE $query OR username LIKE $query)";
-        return $sql;
-    }
-
-    private function filter_user($user_id, $search)
-    {
-        $user = User::find($user_id);
-        $result = array(
-            'id' => $user->id,
-            'name' => self::mark($user->getFullname(), $search),
-            'url' => URLHelper::getURL("dispatch.php/profile", array('username' => $user->username)),
-            'additional' => self::mark($user->username, $search),
-            'expand' => URLHelper::getURL("browse.php", array('name' => $search)),
-        );
-        $avatar = Avatar::getAvatar($user->id);
-        if (self::SHOW_ALL_AVATARS || $avatar->is_customized()) {
-            $result['img'] = $avatar->getUrl(AVATAR::MEDIUM);
-        }
-        return $result;
-    }
-
-    private function search_mycourse($search)
-    {
-        if (!$search) {
-            return null;
-        }
-        $query = DBManager::get()->quote("%$search%");
-        $user_id = DBManager::get()->quote(User::findCurrent()->id);
-        $sql = "SELECT 'mycourses' as type, courses.seminar_id as id FROM seminare courses JOIN seminar_user USING (seminar_id) WHERE user_id = $user_id AND (courses.Name LIKE $query OR courses.VeranstaltungsNummer LIKE $query) ORDER BY start_time DESC";
-        return $sql;
-    }
-
-    private function search_course($search)
-    {
-        if (!$search) {
-            return null;
-        }
-        $query = DBManager::get()->quote("%$search%");
-
-        // visibility
-        if (!$GLOBALS['perm']->have_perm('admin')) {
-            $visibility = "courses.visible = 1 AND ";
-        }
-
-        $sql = "SELECT 'courses' as type, courses.seminar_id as id FROM seminare courses WHERE $visibility(courses.Name LIKE $query OR courses.VeranstaltungsNummer LIKE $query) ORDER BY ABS(start_time - unix_timestamp()) ASC";
-        return $sql;
-    }
-
-    private function filter_course($course_id, $search)
-    {
-        $course = Course::find($course_id);
-        $result = array(
-            'id' => $course->id,
-            'name' => self::mark($course->getFullname(), $search),
-            'url' => URLHelper::getURL("dispatch.php/course/details/index/" . $course->id),
-            'date' => $course->start_semester->name,
-            'expand' => URLHelper::getURL("dispatch.php/search/courses", array(
-                'reset_all' => 1,
-                'search_sem_qs_choose' => 'title_lecturer_number',
-                'search_sem_sem' => 'all',
-                'search_sem_quick_search_parameter' => $search,
-                'search_sem_1508068a50572e5faff81c27f7b3a72f' => 1 // Fuck you Stud.IP
-            ))
-        );
-        $avatar = CourseAvatar::getAvatar($course->id);
-        if (self::SHOW_ALL_AVATARS || $avatar->is_customized()) {
-            $result['img'] = $avatar->getUrl(AVATAR::MEDIUM);
-        }
-        return $result;
-    }
-
-    private function search_semtree($search)
-    {
-        if (!$search) {
-            return null;
-        }
-        $query = DBManager::get()->quote("%$search%");
-        $sql = "SELECT 'semtree' as type, sem_tree_id as id FROM sem_tree WHERE name LIKE $query ORDER BY name DESC";
-        return $sql;
-    }
-
-    private function filter_semtree($semtree_id, $search)
-    {
-        $semtree = StudipStudyArea::find($semtree_id);
-        return array(
-            'id' => $semtree->id,
-            'name' => self::mark($semtree->name, $search),
-            'url' => URLHelper::getURL("dispatch.php/search/courses", array('start_item_id' => $semtree->id, 'level' => 'vv', 'cmd' => 'qs'))
-        );
-    }
-
-    private function search_inst($search)
-    {
-        if (!$search) {
-            return null;
-        }
-        $query = DBManager::get()->quote("%$search%");
-        $sql = "SELECT 'inst' as type, Institut_id as id FROM Institute WHERE Name LIKE $query ORDER BY name DESC";
-        return $sql;
-    }
-
-    private function filter_inst($inst_id, $search)
-    {
-        $inst = Institute::find($inst_id);
-        $result = array(
-            'id' => $inst->id,
-            'name' => self::mark($inst->getFullname(), $search),
-            'url' => URLHelper::getURL("dispatch.php/institute/overview", array('cid' => $inst->id)),
-            'expand' => URLHelper::getURL('institut_browse.php', array('cmd' => 'suche', 'search_name' => $search))
-        );
-        $avatar = InstituteAvatar::getAvatar($inst->id);
-        if (self::SHOW_ALL_AVATARS || $avatar->is_customized()) {
-            $result['img'] = $avatar->getUrl(AVATAR::MEDIUM);
-        }
-        return $result;
-    }
-
-    private function search_navigation($search)
-    {
-        if (!$search) {
-            return null;
-        }
-
-        $result = array();
-        $start = Navigation::getItem('/');
-        foreach ($start->getSubNavigation() as $index => $sub) {
-            $this->search_nav_recursive($sub, '', $index, $search, $result);
-        }
-
-        if (!$result) {
-            return null;
-        }
-        return "SELECT type,id FROM (" . join(' UNION ', $result) . ") as navtable";
-    }
-
-    private function search_nav_recursive(Navigation $navigation, $path, $index, $search, &$result)
-    {
-        $fullpath = $path . '/' . $index;
-        if (mb_strpos($navigation->getTitle(), $search) !== false) {
-            $quotedPath = DBManager::get()->quote($fullpath);
-            $result[] = "(SELECT 'navigation' as type, $quotedPath as id)";
-        }
-        foreach ($navigation->getSubNavigation() as $newindex => $sub) {
-            $this->search_nav_recursive($sub, $fullpath, $newindex, $search, $result);
-        }
-    }
-
-    private function filter_navigation($nav_path, $search)
-    {
-        $nav = Navigation::getItem($nav_path);
-        return array(
-            'name' => self::mark($nav->getTitle(), $search),
-            'url' => $nav->getUrl(),
-            'additional' => $nav_path
-        );
-    }
-
-    private function search_calendar($query)
-    {
-        $time = strtotime($query);
-        $endtime = $time + 86400;
-        $user_id = DBManager::get()->quote(User::findCurrent()->id);
-        if ($time) {
-            return "SELECT 'calendar' as type, termin_id as id FROM termine JOIN seminar_user ON (range_id = seminar_id) WHERE user_id = $user_id AND date BETWEEN $time AND $endtime ORDER BY date";
-        }
-    }
-
-    private function filter_calendar($termin_id, $search)
-    {
-        $termin = DBManager::get()->fetchOne("SELECT name,date,end_time,seminar_id FROM termine JOIN seminare ON (range_id = seminar_id) WHERE termin_id = ?", array($termin_id));
-        return array(
-            'name' => $termin['name'],
-            'url' => URLHelper::getURL("dispatch.php/course/details", array('cid' => $termin['seminar_id'])),
-            'additional' => strftime('%H:%M', $termin['date']) . " - " . strftime('%H:%M', $termin['end_time']) . ", " . strftime('%x', $termin['date']),
-            'expand' => URLHelper::getURL('calendar.php', array('cmd' => 'showweek', 'atime' => strtotime($search)))
-        );
-    }
-
-    private function search_resources($search)
-    {
-        if (!$search || !$GLOBALS['perm']->have_perm('admin')) {
-            return null;
-        }
-        $query = DBManager::get()->quote("%$search%");
-        return "SELECT 'resources' as type, resource_id as id FROM resources_objects WHERE name LIKE $query OR description LIKE $query OR REPLACE(name, ' ', '') LIKE $query OR REPLACE(description, ' ', '') LIKE $query";
-    }
-
-    private function filter_resources($resource_id, $search)
-    {
-        $res = DBManager::get()->fetchOne("SELECT name,description FROM resources_objects WHERE resource_id = ?", array($resource_id));
-        return array(
-            'name' => self::mark($res['name'], $search),
-            'url' => URLHelper::getURL("resources.php", array('view' => 'view_schedule', 'show_object' => $resource_id)),
-            'additional' => self::mark($res['description'], $search),
-            'expand' => URLHelper::getURL('resources.php', array('view' => 'search', 'search_exp' => $search, 'start_search' => ''))
-        );
-    }
-
-    private function search_buzzwords($search) {
-        if (!$search) {
-            return null;
-        }
-
-        $query = DBManager::get()->quote("%$search%");
-        $rights = $GLOBALS['perm']->permissions[$GLOBALS['perm']->get_perm()];
-        return "SELECT 'buzzword' as type, buzz_id as id FROM podium_buzzwords WHERE buzzwords LIKE $query AND $rights >= rights";
-    }
-
-    private function filter_buzzwords($buzz_id, $search)
-    {
-        $buzz = DBManager::get()->fetchOne("SELECT * FROM podium_buzzwords WHERE buzz_id = ?", array($buzz_id));
-        return array(
-            'name' => htmlReady($buzz['name']),
-            'url' => $buzz['url'],
-            'additional' => $buzz['subtitle']
-        );
     }
 }
