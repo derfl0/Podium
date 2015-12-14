@@ -10,6 +10,7 @@ require "PodiumModule.php";
 class Podium extends StudIPPlugin implements SystemPlugin
 {
     const SHOW_ALL_AVATARS = false;
+    const MAX_RESULT_OF_TYPE = 6;
 
     private static $types = array();
 
@@ -36,6 +37,10 @@ class Podium extends StudIPPlugin implements SystemPlugin
         }
     }
 
+    /**
+     * Adds an PodiumModule to the search (must implement PodiumModule)
+     * @param $class Your search class
+     */
     public static function registerPodiumModule($class) {
         self::addType($class::getPodiumId(), $class::getPodiumName(), array($class, 'getPodiumSearch'), array($class, 'podiumFilter'));
     }
@@ -104,7 +109,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
         $result = array();
 
         while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            if (sizeof($result[$data['type']]['content']) < 6) {
+            if (sizeof($result[$data['type']]['content']) < self::MAX_RESULT_OF_TYPE) {
                 if ($item = $types[$data['type']]['filter']($data['id'], $search)) {
                     $result[$data['type']]['name'] = $types[$data['type']]['name'];
                     $result[$data['type']]['content'][] = $item;
