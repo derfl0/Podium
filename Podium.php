@@ -12,7 +12,6 @@ class Podium extends StudIPPlugin implements SystemPlugin
     const SHOW_ALL_AVATARS = false;
 
     private static $types = array();
-    private static $classes = array();
 
     public function __construct()
     {
@@ -28,18 +27,13 @@ class Podium extends StudIPPlugin implements SystemPlugin
 
         /* Init default types */
         //self::addType('navigation', _('Navigation'), array($this, 'search_navigation'), array($this, 'filter_navigation'));
-        //self::addType('buzzword', _('Stichworte'), array($this, 'search_buzzwords'), array($this, 'filter_buzzwords'));
-        self::addType('resources', _('Ressourcen'), array($this, 'search_resources'), array($this, 'filter_resources'));
         self::addType('calendar', _('Termine'), array($this, 'search_calendar'), array($this, 'filter_calendar'));
         self::addType('mycourses', _('Meine Veranstaltungen'), array($this, 'search_mycourse'), array($this, 'filter_course'));
         self::addType('courses', _('Veranstaltungen'), array($this, 'search_course'), array($this, 'filter_course'));
-        self::addType('user', _('Benutzer'), array($this, 'search_user'), array($this, 'filter_user'));
         self::addType('file', _('Datei'), array($this, 'search_files'), array($this, 'filter_file'));
         self::addType('inst', _('Einrichtungen'), array($this, 'search_inst'), array($this, 'filter_inst'));
         self::addType('semtree', _('Studienbereiche'), array($this, 'search_semtree'), array($this, 'filter_semtree'));
 
-        require_once "models/PodiumBuzzword.php";
-        Podium::register('PodiumBuzzword');
 
         /* Add podium navigation */
         try {
@@ -52,14 +46,8 @@ class Podium extends StudIPPlugin implements SystemPlugin
         }
     }
 
-    public static function register($class) {
-        self::$classes[] = $class;
-    }
-
-    private static function loadClasses() {
-        foreach (self::$classes as $class) {
-            self::addType($class::getPodiumId(), $class::getPodiumName(), array($class, 'getPodiumSearch'), array($class, 'podiumFilter'));
-        }
+    public static function registerPodiumModule($class) {
+        self::addType($class::getPodiumId(), $class::getPodiumName(), array($class, 'getPodiumSearch'), array($class, 'podiumFilter'));
     }
 
     /**
@@ -90,8 +78,14 @@ class Podium extends StudIPPlugin implements SystemPlugin
 
     public static function getTypes()
     {
-        self::loadClasses();
         return self::$types;
+    }
+
+    private static function loadDefaultModules() {
+        foreach (glob(__DIR__.'/models/*.php') as $file) {
+            require $file;
+            Podium::registerPodiumModule(basename($file, '.php'));
+        }
     }
 
     /**
@@ -99,7 +93,10 @@ class Podium extends StudIPPlugin implements SystemPlugin
      */
     public function find_action()
     {
-        self::loadClasses();
+        // register all classes
+        Podium::loadDefaultModules();
+
+        // load types
         $types = self::$types;
 
         $search = trim(studip_utf8decode(Request::get('search')));
@@ -233,34 +230,12 @@ class Podium extends StudIPPlugin implements SystemPlugin
 
     private function search_user($search)
     {
-        if (!$search) {
-            return null;
-        }
 
-        // if you're no admin respect visibilty
-        if (!$GLOBALS['perm']->have_perm('admin')) {
-            $visQuery = get_vis_query('user', 'search') . " AND ";
-        }
-        $query = DBManager::get()->quote("%$search%");
-        $sql = "SELECT 'user' as type, user.user_id as id FROM auth_user_md5 user LEFT JOIN user_visibility USING (user_id) WHERE $visQuery (CONCAT_WS(' ', user.nachname, user.vorname) LIKE $query OR  CONCAT_WS(' ', user.vorname, user.nachname) LIKE $query OR username LIKE $query)";
-        return $sql;
     }
 
     private function filter_user($user_id, $search)
     {
-        $user = User::find($user_id);
-        $result = array(
-            'id' => $user->id,
-            'name' => self::mark($user->getFullname(), $search),
-            'url' => URLHelper::getURL("dispatch.php/profile", array('username' => $user->username)),
-            'additional' => self::mark($user->username, $search),
-            'expand' => URLHelper::getURL("browse.php", array('name' => $search)),
-        );
-        $avatar = Avatar::getAvatar($user->id);
-        if (self::SHOW_ALL_AVATARS || $avatar->is_customized()) {
-            $result['img'] = $avatar->getUrl(AVATAR::MEDIUM);
-        }
-        return $result;
+
     }
 
     private function search_mycourse($search)
@@ -420,23 +395,4 @@ class Podium extends StudIPPlugin implements SystemPlugin
         );
     }
 
-    private function search_resources($search)
-    {
-        if (!$search || !$GLOBALS['perm']->have_perm('admin')) {
-            return null;
-        }
-        $query = DBManager::get()->quote("%$search%");
-        return "SELECT 'resources' as type, resource_id as id FROM resources_objects WHERE name LIKE $query OR description LIKE $query OR REPLACE(name, ' ', '') LIKE $query OR REPLACE(description, ' ', '') LIKE $query";
-    }
-
-    private function filter_resources($resource_id, $search)
-    {
-        $res = DBManager::get()->fetchOne("SELECT name,description FROM resources_objects WHERE resource_id = ?", array($resource_id));
-        return array(
-            'name' => self::mark($res['name'], $search),
-            'url' => URLHelper::getURL("resources.php", array('view' => 'view_schedule', 'show_object' => $resource_id)),
-            'additional' => self::mark($res['description'], $search),
-            'expand' => URLHelper::getURL('resources.php', array('view' => 'search', 'search_exp' => $search, 'start_search' => ''))
-        );
-    }
 }

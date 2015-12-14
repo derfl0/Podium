@@ -1,10 +1,6 @@
 <?php
-
 /**
- * Created by PhpStorm.
- * User: intelec
- * Date: 10.12.15
- * Time: 14:12
+ * PodiumModule for buzzwords
  */
 class PodiumBuzzword extends SimpleORMap implements PodiumModule
 {
