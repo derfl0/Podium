@@ -1,5 +1,6 @@
 <?php
 require "PodiumModule.php";
+
 /**
  * Podium.php
  *
@@ -32,7 +33,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
             Navigation::addItem('/admin/podium/modules', new AutoNavigation(dgettext('podium', 'Module'), PluginEngine::GetURL($this, array(), 'settings/modules')));
             Navigation::addItem('/admin/podium/buzzword', new AutoNavigation(dgettext('podium', 'Stichworte'), PluginEngine::GetURL($this, array(), 'settings/buzzwords')));
             Navigation::addItem('/admin/podium/faillog', new AutoNavigation(dgettext('podium', 'Erfolglose Suchen'), PluginEngine::GetURL($this, array(), 'settings/faillog')));
-        } catch(InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
 
         }
     }
@@ -41,7 +42,8 @@ class Podium extends StudIPPlugin implements SystemPlugin
      * Adds an PodiumModule to the search (must implement PodiumModule)
      * @param $class Your search class
      */
-    public static function registerPodiumModule($class) {
+    public static function registerPodiumModule($class)
+    {
         self::addType($class::getPodiumId(), $class::getPodiumName(), array($class, 'getPodiumSearch'), array($class, 'podiumFilter'));
     }
 
@@ -73,17 +75,20 @@ class Podium extends StudIPPlugin implements SystemPlugin
 
     public static function getTypes()
     {
+        self::loadDefaultModules();
         return self::$types;
     }
 
-    private static function loadDefaultModules() {
-        foreach (glob(__DIR__.'/models/*.php') as $file) {
-            require $file;
+    private static function loadDefaultModules()
+    {
+        foreach (glob(__DIR__ . '/models/*.php') as $file) {
+            require_once $file;
             Podium::registerPodiumModule(basename($file, '.php'));
         }
     }
 
-    private static function getSQL($search) {
+    private static function getSQL($search)
+    {
         // register all classes
         Podium::loadDefaultModules();
 
