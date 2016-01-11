@@ -106,7 +106,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
             }
         }
 
-        return "SELECT type, id FROM (" . join(' UNION ', $sql) . ") as a GROUP BY id";
+        return "SELECT type, id FROM (" . join(' UNION ', $sql) . ") as a GROUP BY id ORDER BY null";
     }
 
     /**
