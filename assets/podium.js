@@ -149,6 +149,15 @@ STUDIP.Podium = {
             STUDIP.Podium.toggle();
         }).show()).hide();
 
+        $('#podiuminput input').on('input', function() {
+            STUDIP.Podium.ajax.abort();
+            STUDIP.Podium.requestFinished = false;
+            clearTimeout(STUDIP.Podium.timeout);
+            STUDIP.Podium.timeout = setTimeout(function () {
+                STUDIP.Podium.load();
+            }, STUDIP.Podium.keyTimeout);
+        });
+
         // Keymapping
         $('#podiumwrapper').keydown(function (e) {
             var list = $('#podium #podiumlist');
@@ -199,13 +208,6 @@ STUDIP.Podium = {
                         list.find('.expand').removeClass('expand');
                         list.find('.collapse').removeClass('collapse');
                     }
-                default:
-                    STUDIP.Podium.ajax.abort();
-                    STUDIP.Podium.requestFinished = false;
-                    clearTimeout(STUDIP.Podium.timeout);
-                    STUDIP.Podium.timeout = setTimeout(function () {
-                        STUDIP.Podium.load();
-                    }, STUDIP.Podium.keyTimeout);
             }
         });
 
