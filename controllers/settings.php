@@ -30,6 +30,17 @@ class SettingsController extends StudipController
     public function modules_action()
     {
         $this->modules = Podium::getTypes();
+
+        if (Request::submitted('store')) {
+            CSRFProtection::verifyUnsafeRequest();
+            $activeModules = Request::getArray('modules');
+            foreach ($this->modules as $id => $module) {
+                if (!$activeModules[$id]) {
+                    $deactivated[] = $id;
+                }
+            }
+            Config::get()->store(PODIUM_MODULES, $deactivated);
+        }
     }
 
     public function faillog_action()

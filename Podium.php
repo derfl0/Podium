@@ -93,10 +93,16 @@ class Podium extends StudIPPlugin implements SystemPlugin
         Podium::loadDefaultModules();
 
         // build all types
-        foreach (self::$types as $type) {
-            $partSQL = $type['sql']($search);
-            if ($partSQL) {
-                $sql[] = "(" . $type['sql']($search) . " LIMIT 10)";
+        foreach (self::$types as $id => $type) {
+
+            // check if module is active
+            if (self::isActiveModule($id)) {
+
+                // add the sql part
+                $partSQL = $type['sql']($search);
+                if ($partSQL) {
+                    $sql[] = "(" . $type['sql']($search) . " LIMIT 10)";
+                }
             }
         }
 
@@ -172,5 +178,9 @@ class Podium extends StudIPPlugin implements SystemPlugin
             return $result;
         }
         return $string;
+    }
+
+    public static function isActiveModule($moduleId) {
+        return !in_array($moduleId, Config::get()->PODIUM_MODULES);
     }
 }
