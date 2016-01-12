@@ -99,7 +99,7 @@ class SettingsController extends StudipController
     }
 
     public function delete_buzzword_action($buzz_id) {
-        PodiumBuzzword::deleteById($buzz_id);
+        PodiumBuzzword::deleteBySQL('buzz_id = ?', array($buzz_id));
         $this->redirect('settings/buzzwords');
     }
 }
