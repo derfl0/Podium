@@ -39,6 +39,7 @@ class PodiumCourse implements PodiumModule
         if (!$search) {
             return null;
         }
+        $search = str_replace(" ", "% ", $search);
         $query = DBManager::get()->quote("%$search%");
 
         // visibility
@@ -46,7 +47,7 @@ class PodiumCourse implements PodiumModule
             $visibility = "courses.visible = 1 AND ";
         }
 
-        $sql = "SELECT 'courses' as type, courses.seminar_id as id FROM seminare courses WHERE $visibility(courses.Name LIKE $query OR courses.VeranstaltungsNummer LIKE $query) ORDER BY ABS(start_time - unix_timestamp()) ASC";
+        $sql = "SELECT 'courses' as type, courses.seminar_id as id FROM seminare courses JOIN sem_types ON (courses.status = sem_types.id) WHERE $visibility(courses.Name LIKE $query OR courses.VeranstaltungsNummer LIKE $query OR CONCAT_WS(' ', sem_types.name,courses.Name) LIKE $query) ORDER BY ABS(start_time - unix_timestamp()) ASC";
         return $sql;
     }
 

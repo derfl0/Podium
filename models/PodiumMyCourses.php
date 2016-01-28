@@ -39,9 +39,10 @@ class PodiumMyCourses implements PodiumModule
         if (!$search) {
             return null;
         }
+        $search = str_replace(" ", "% ", $search);
         $query = DBManager::get()->quote("%$search%");
         $user_id = DBManager::get()->quote(User::findCurrent()->id);
-        $sql = "SELECT 'mycourses' as type, courses.seminar_id as id FROM seminare courses JOIN seminar_user USING (seminar_id) WHERE user_id = $user_id AND (courses.Name LIKE $query OR courses.VeranstaltungsNummer LIKE $query) ORDER BY start_time DESC";
+        $sql = "SELECT 'mycourses' as type, courses.seminar_id as id FROM seminare courses JOIN seminar_user USING (seminar_id) JOIN sem_types ON (courses.status = sem_types.id)  WHERE user_id = $user_id AND (courses.Name LIKE $query OR courses.VeranstaltungsNummer LIKE $query OR CONCAT_WS(' ', sem_types.name,courses.Name) LIKE $query) ORDER BY start_time DESC";
         return $sql;
     }
 

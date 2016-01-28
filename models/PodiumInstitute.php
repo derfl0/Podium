@@ -39,6 +39,7 @@ class PodiumInstitute implements PodiumModule
         if (!$search) {
             return null;
         }
+        $search = str_replace(" ", "% ", $search);
         $query = DBManager::get()->quote("%$search%");
         $sql = "SELECT 'inst' as type, Institut_id as id FROM Institute WHERE Name LIKE $query ORDER BY name DESC";
         return $sql;
