@@ -126,11 +126,10 @@ class Podium extends StudIPPlugin implements SystemPlugin
                     $new = mysqli_connect($GLOBALS['DB_STUDIP_HOST'], $GLOBALS['DB_STUDIP_USER'], $GLOBALS['DB_STUDIP_PASSWORD'], $GLOBALS['DB_STUDIP_DATABASE']);
                     $new->query($type['sql']($search), MYSQLI_ASYNC);
                     $new->podiumid = $id;
-                    $all_links[$id] = $new;
+                    $all_links[] = $new;
                 }
             }
         }
-        $btime = microtime(1);
         while ($processed < count($all_links)) {
             $error = $reject = $read = $all_links;
             mysqli_poll ($read, $error, $reject, 1);
