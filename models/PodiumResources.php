@@ -31,15 +31,14 @@ class PodiumResources implements PodiumModule
             return null;
         }
         $query = DBManager::get()->quote("%$search%");
-        return "SELECT 'resources' as type, resource_id as id FROM resources_objects WHERE name LIKE $query OR description LIKE $query OR REPLACE(name, ' ', '') LIKE $query OR REPLACE(description, ' ', '') LIKE $query";
+        return "SELECT resource_id,name,description FROM resources_objects WHERE name LIKE $query OR description LIKE $query OR REPLACE(name, ' ', '') LIKE $query OR REPLACE(description, ' ', '') LIKE $query";
     }
 
-    public static function podiumFilter($resource_id, $search)
+    public static function podiumFilter($res, $search)
     {
-        $res = DBManager::get()->fetchOne("SELECT name,description FROM resources_objects WHERE resource_id = ?", array($resource_id));
         return array(
             'name' => Podium::mark($res['name'], $search),
-            'url' => URLHelper::getURL("resources.php", array('view' => 'view_schedule', 'show_object' => $resource_id)),
+            'url' => URLHelper::getURL("resources.php", array('view' => 'view_schedule', 'show_object' => $res['resource_id'])),
             'additional' => Podium::mark($res['description'], $search),
             'expand' => URLHelper::getURL('resources.php', array('view' => 'search', 'search_exp' => $search, 'start_search' => ''))
         );

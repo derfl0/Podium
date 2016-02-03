@@ -41,7 +41,7 @@ class PodiumInstitute implements PodiumModule
         }
         $search = str_replace(" ", "% ", $search);
         $query = DBManager::get()->quote("%$search%");
-        $sql = "SELECT 'inst' as type, Institut_id as id FROM Institute WHERE Name LIKE $query ORDER BY name DESC";
+        $sql = "SELECT * FROM Institute WHERE Name LIKE $query ORDER BY name DESC";
         return $sql;
     }
 
@@ -63,7 +63,7 @@ class PodiumInstitute implements PodiumModule
      */
     public static function podiumFilter($inst_id, $search)
     {
-        $inst = Institute::find($inst_id);
+        $inst = Institute::buildExisting($inst_id);
         $result = array(
             'id' => $inst->id,
             'name' => Podium::mark($inst->getFullname(), $search),

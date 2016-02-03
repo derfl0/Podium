@@ -59,11 +59,11 @@ class PodiumFile implements PodiumModule
         }
 
         // Build query
-        $sql = "SELECT 'file' as type, dokumente.dokument_id as id FROM dokumente "
+        $sql = "SELECT dokumente.* FROM dokumente "
             . "JOIN seminare USING (seminar_id) $ownseminars "
             . "WHERE (seminare.name LIKE BINARY $binary OR seminare.name LIKE $prequery ) "
             . "$comp dokumente.name LIKE $query "
-            . "ORDER BY dokumente.chdate DESC";
+            . "ORDER BY dokumente.chdate DESC LIMIT ".(2*Podium::MAX_RESULT_OF_TYPE);
         return $sql;
     }
 
@@ -85,7 +85,7 @@ class PodiumFile implements PodiumModule
      */
     public static function podiumFilter($file_id, $search)
     {
-        $file = StudipDocument::find($file_id);
+        $file = StudipDocument::buildExisting($file_id);
         if ($file->checkAccess(User::findCurrent()->id)) {
             return array(
                 'id' => $file->id,

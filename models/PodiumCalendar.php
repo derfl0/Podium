@@ -40,7 +40,7 @@ class PodiumCalendar implements PodiumModule
         $endtime = $time + 86400;
         $user_id = DBManager::get()->quote(User::findCurrent()->id);
         if ($time) {
-            return "SELECT 'calendar' as type, termin_id as id FROM termine JOIN seminar_user ON (range_id = seminar_id) WHERE user_id = $user_id AND date BETWEEN $time AND $endtime ORDER BY date";
+            return "SELECT name,date,end_time,seminar_id  FROM termine JOIN seminar_user ON (range_id = seminar_id) WHERE user_id = $user_id AND date BETWEEN $time AND $endtime ORDER BY date";
         }
     }
 
@@ -60,9 +60,8 @@ class PodiumCalendar implements PodiumModule
      * @param $search
      * @return mixed
      */
-    public static function podiumFilter($termin_id, $search)
+    public static function podiumFilter($termin, $search)
     {
-        $termin = DBManager::get()->fetchOne("SELECT name,date,end_time,seminar_id FROM termine JOIN seminare ON (range_id = seminar_id) WHERE termin_id = ?", array($termin_id));
         return array(
             'name' => $termin['name'],
             'url' => URLHelper::getURL("dispatch.php/course/details", array('cid' => $termin['seminar_id'])),
