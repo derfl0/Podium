@@ -114,7 +114,6 @@ class Podium extends StudIPPlugin implements SystemPlugin
      */
     public function find_action()
     {
-        $time = microtime(1);
         Podium::loadDefaultModules();
         $search = trim(studip_utf8decode(Request::get('search')));
         $sql = "";
@@ -149,7 +148,6 @@ class Podium extends StudIPPlugin implements SystemPlugin
                 $processed++;
             }
         }
-var_dump(microtime(1)-$time);die;
         // Send me an answer
         echo json_encode(studip_utf8encode($result));
         die;
