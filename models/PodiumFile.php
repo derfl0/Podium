@@ -38,9 +38,7 @@ class PodiumFile implements PodiumModule
     {
         // Filter for own courses
         if (!$GLOBALS['perm']->have_perm('admin')) {
-            if (!$GLOBALS['perm']->have_perm('admin')) {
-                $user = DBManager::get()->quote(User::findCurrent()->id);
-            }
+            $user = DBManager::get()->quote(User::findCurrent()->id);
             $ownseminars = "JOIN seminar_user ON (dokumente.seminar_id = seminar_user.seminar_id AND seminar_user.user_id = $user) ";
         }
 
@@ -51,20 +49,18 @@ class PodiumFile implements PodiumModule
             $query = DBManager::get()->quote("%" . trim($args[1]) . "%");
             $binary = DBManager::get()->quote('%' . join('%', str_split(strtoupper(trim($args[0])))) . '%');
             $comp = "AND";
-        } else {
-            $query = DBManager::get()->quote("%$search%");
-            $prequery = $query;
-            $comp = "OR";
-            $binary = DBManager::get()->quote('%' . join('%', str_split(strtoupper($search))) . '%');
-        }
-
-        // Build query
-        $sql = "SELECT dokumente.* FROM dokumente "
+            return "SELECT dokumente.* FROM dokumente "
             . "JOIN seminare USING (seminar_id) $ownseminars "
             . "WHERE (seminare.name LIKE BINARY $binary OR seminare.name LIKE $prequery ) "
             . "$comp dokumente.name LIKE $query "
-            . "ORDER BY dokumente.chdate DESC LIMIT ".(2*Podium::MAX_RESULT_OF_TYPE);
-        return $sql;
+            . "ORDER BY dokumente.chdate DESC LIMIT ".(2*Podium::MAX_RESULT_OF_TYPE * 2);
+        } else {
+            $query = DBManager::get()->quote("%$search%");
+            return "SELECT dokumente.* FROM dokumente IGNORE INDEX (chdate) "
+            . " $ownseminars "
+            . "WHERE dokumente.name LIKE $query "
+            . "ORDER BY dokumente.chdate DESC LIMIT ".(Podium::MAX_RESULT_OF_TYPE * 2);
+        }
     }
 
     /**
