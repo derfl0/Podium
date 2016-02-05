@@ -45,9 +45,10 @@ class PodiumCourse implements PodiumModule
         // visibility
         if (!$GLOBALS['perm']->have_perm('admin')) {
             $visibility = "courses.visible = 1 AND ";
+            $seminaruser = " AND NOT EXISTS (SELECT 1 FROM seminar_user WHERE seminar_id = courses.Seminar_id AND user_id = ".DBManager::get()->quote(User::findCurrent()->id).") ";
         }
 
-        $sql = "SELECT courses.Seminar_id,courses.start_time,courses.name,courses.veranstaltungsnummer,courses.status FROM seminare courses JOIN sem_types ON (courses.status = sem_types.id) WHERE $visibility(courses.Name LIKE $query OR courses.VeranstaltungsNummer LIKE $query OR CONCAT_WS(' ', sem_types.name,courses.Name) LIKE $query) ORDER BY ABS(start_time - unix_timestamp()) ASC LIMIT ".Podium::MAX_RESULT_OF_TYPE;
+        $sql = "SELECT courses.Seminar_id,courses.start_time,courses.name,courses.veranstaltungsnummer,courses.status FROM seminare courses JOIN sem_types ON (courses.status = sem_types.id) WHERE $visibility(courses.Name LIKE $query OR courses.VeranstaltungsNummer LIKE $query OR CONCAT_WS(' ', sem_types.name,courses.Name) LIKE $query) $seminaruser ORDER BY ABS(start_time - unix_timestamp()) ASC LIMIT ".Podium::MAX_RESULT_OF_TYPE;
         return $sql;
     }
 
