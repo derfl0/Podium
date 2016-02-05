@@ -133,22 +133,25 @@ class Podium extends StudIPPlugin implements SystemPlugin
             }
         }
 
-        $error = $reject = array();
-        while (count($error) + count($reject) < count($all_links)) {
+        $read = $error = $reject = array();
+        while (count($read) + count($error) + count($reject) < count($all_links)) {
 
             // Parse all links
             $error = $reject = $read = $all_links;
 
-            // Poll will reject connection that have no ready query
-            mysqli_poll ($read, $error, $reject, 1);
-            if ($read[0] && $set = $read[0]->reap_async_query()) {
-                $id = $read[0]->podiumid;
-                while ($data = $set->fetch_assoc()) {
-                    if (sizeof($result[$id]['content']) < self::MAX_RESULT_OF_TYPE) {
-                        $arg = $data['type'] && count($data) == 2 ? $data['id'] : $data;
-                        if ($item = $types[$id]['filter']($arg, $search)) {
-                            $result[$id]['name'] = $types[$id]['name'];
-                            $result[$id]['content'][] = $item;
+            // Poll will reject connection that have no query running
+            mysqli_poll($read, $error, $reject, 1);
+
+            foreach ($read as $r) {
+                if ($r && $set = $r->reap_async_query()) {
+                    $id = $r->podiumid;
+                    while ($data = $set->fetch_assoc()) {
+                        if (sizeof($result[$id]['content']) < self::MAX_RESULT_OF_TYPE) {
+                            $arg = $data['type'] && count($data) == 2 ? $data['id'] : $data;
+                            if ($item = $types[$id]['filter']($arg, $search)) {
+                                $result[$id]['name'] = $types[$id]['name'];
+                                $result[$id]['content'][] = $item;
+                            }
                         }
                     }
                 }
