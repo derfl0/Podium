@@ -114,6 +114,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
      */
     public function find_action()
     {
+        // Now load all modules
         Podium::loadDefaultModules();
         $search = trim(studip_utf8decode(Request::get('search')));
         $sql = "";
@@ -127,11 +128,18 @@ class Podium extends StudIPPlugin implements SystemPlugin
                     $new->query($type['sql']($search), MYSQLI_ASYNC);
                     $new->podiumid = $id;
                     $all_links[] = $new;
+                    $GLOBALS['all_links'] = $all_links;
                 }
             }
         }
-        while ($processed < count($all_links)) {
+
+        $error = $reject = array();
+        while (count($error) + count($reject) < count($all_links)) {
+
+            // Parse all links
             $error = $reject = $read = $all_links;
+
+            // Poll will reject connection that have no ready query
             mysqli_poll ($read, $error, $reject, 1);
             if ($read[0] && $set = $read[0]->reap_async_query()) {
                 $id = $read[0]->podiumid;
@@ -144,9 +152,9 @@ class Podium extends StudIPPlugin implements SystemPlugin
                         }
                     }
                 }
-                $processed++;
             }
         }
+
         // Send me an answer
         echo json_encode(studip_utf8encode($result));
         die;
