@@ -14,12 +14,10 @@ div#podiumwrapper {
     top: 30%;
     border: 1px solid @base-color;
     box-shadow: 4px 4px 6px 0px rgba(0, 0, 0, 0.4);
+    background-color: fade(white, @opacity);
     mark {
       background-color: @content-color-40;
       color: inherit;
-    }
-    h3 {
-      margin: 6px 6px -3px;
     }
     div#podiuminput {
       background-color: fade(@content-color-20, @opacity);
@@ -42,6 +40,20 @@ div#podiumwrapper {
         }
       }
     }
+    div.podium_help {
+      padding: 4px;
+      border-top: solid @light-gray-color 1px;
+      h1 {
+        margin-bottom: 2px;
+      }
+      dl {
+        margin: 0;
+        dt {
+          font-size: 1.1em;
+          font-weight: bold;
+        }
+      }
+    }
     ul {
       list-style: none;
       padding: 0;
@@ -60,8 +72,7 @@ div#podiumwrapper {
         ul {
           li {
             position: relative;
-            background-color: fade(white, @opacity);
-            div.podiumdate {
+            date {
               position: absolute;
               top: 0;
               right: 2px;
@@ -117,6 +128,9 @@ div#podiumwrapper {
         &.collapse {
           display: none;
         }
+      }
+      &:not(:empty) + div.podium_help {
+        display: none;
       }
     }
   }

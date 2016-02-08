@@ -21,19 +21,26 @@ STUDIP.Podium = {
         // Podiumwindow
         $('#podiumwrapper').stop(true, true).fadeIn(STUDIP.Podium.fadeTime);
         $('#podiumwrapper input').focus();
-        STUDIP.Podium.load();
     },
     close: function () {
         STUDIP.Podium.active = false;
         $('#podiumicon').removeClass('visible');
         $('#podiumwrapper').stop(true, true).fadeOut(STUDIP.Podium.fadeTime);
     },
-    toggle: function() {
+    toggle: function () {
         if (STUDIP.Podium.active) {
             STUDIP.Podium.close();
         } else {
             STUDIP.Podium.open();
         }
+    },
+    stop: function() {
+        if (STUDIP.Podium.ajax !== undefined) {
+            STUDIP.Podium.ajax.abort();
+        }
+        STUDIP.Podium.requestFinished = false;
+        clearTimeout(STUDIP.Podium.timeout);
+        $('#podiuminput input').removeClass('podium_ajax');
     },
     load: function () {
 
@@ -65,8 +72,8 @@ STUDIP.Podium = {
         }
         STUDIP.Podium.requestFinished = true;
     },
-    getSelectedItem: function() {
-      return $('#podium #podiumlist').find('.selected');
+    getSelectedItem: function () {
+        return $('#podium #podiumlist').find('.selected');
     },
     display: function (items) {
         var list = $('#podium #podiumlist');
@@ -92,7 +99,7 @@ STUDIP.Podium = {
             var result = $('<li>');
             list.append(result);
             result.append($('<p>', {text: val.name})).click(function (e) {
-                if (list.find('ul:visible').length === 1 ) {
+                if (list.find('ul:visible').length === 1) {
                     if (STUDIP.Podium.getSelectedItem().attr('data-expand')) {
                         window.location.href = STUDIP.Podium.getSelectedItem().data().expand;
                     }
@@ -110,7 +117,7 @@ STUDIP.Podium = {
                     .append($('<div>')
                         .append($('<p>', {html: hit.name}))
                         .append($('<p>', {html: hit.additional}))
-                        .append($('<div>', {class: 'podiumdate', text: hit.date})))
+                        .append($('<date>', {text: hit.date})))
                     .mouseenter(function (e) {
                         list.find('.selected').removeClass('selected');
                         $(e.target).closest('a').addClass('selected');
@@ -149,13 +156,15 @@ STUDIP.Podium = {
             STUDIP.Podium.toggle();
         }).show()).hide();
 
-        $('#podiuminput input').on('input', function() {
-            STUDIP.Podium.ajax.abort();
-            STUDIP.Podium.requestFinished = false;
-            clearTimeout(STUDIP.Podium.timeout);
-            STUDIP.Podium.timeout = setTimeout(function () {
-                STUDIP.Podium.load();
-            }, STUDIP.Podium.keyTimeout);
+        $('#podiuminput input').on('input', function () {
+            STUDIP.Podium.stop();
+            if ($('#podiuminput input').val().length > 0) {
+                STUDIP.Podium.timeout = setTimeout(function () {
+                    STUDIP.Podium.load();
+                }, STUDIP.Podium.keyTimeout);
+            } else {
+                STUDIP.Podium.display([]);
+            }
         });
 
         // Keymapping
@@ -193,7 +202,7 @@ STUDIP.Podium = {
                     break;
                 case 18: // alt
                     e.preventDefault();
-                    if (list.find('ul:visible').length === 1 ) {
+                    if (list.find('ul:visible').length === 1) {
                         if (selectedItem.attr('data-expand')) {
                             window.location.href = selectedItem.data().expand;
                         }
