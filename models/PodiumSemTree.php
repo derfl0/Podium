@@ -40,7 +40,7 @@ class PodiumSemTree implements PodiumModule
             return null;
         }
         $query = DBManager::get()->quote("%$search%");
-        $sql = "SELECT 'semtree' as type, sem_tree_id as id FROM sem_tree WHERE name LIKE $query ORDER BY name DESC";
+        $sql = "SELECT * FROM sem_tree WHERE name LIKE $query ORDER BY name DESC LIMIT ".Podium::MAX_RESULT_OF_TYPE;
         return $sql;
     }
 
@@ -62,7 +62,7 @@ class PodiumSemTree implements PodiumModule
      */
     public static function podiumFilter($semtree_id, $search)
     {
-        $semtree = StudipStudyArea::find($semtree_id);
+        $semtree = StudipStudyArea::buildExisting($semtree_id);
         return array(
             'id' => $semtree->id,
             'name' => Podium::mark($semtree->name, $search),

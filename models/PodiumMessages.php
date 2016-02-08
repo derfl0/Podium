@@ -46,7 +46,7 @@ class PodiumMessages implements PodiumModule
 
         $query = DBManager::get()->quote("%$search%");
         $user_id = DBManager::get()->quote($GLOBALS['user']->id);
-        $sql = "SELECT 'messages' as type, message_id as id FROM message JOIN message_user USING (message_id) WHERE user_id = $user_id AND (subject LIKE $query OR message LIKE $query) ORDER BY message.mkdate DESC ";
+        $sql = "SELECT message.* FROM message JOIN message_user USING (message_id) WHERE user_id = $user_id AND (subject LIKE $query OR message LIKE $query) ORDER BY message.mkdate DESC ";
         return $sql;
     }
 
@@ -68,7 +68,7 @@ class PodiumMessages implements PodiumModule
      */
     public static function podiumFilter($message_id, $search)
     {
-        $message = Message::find($message_id);
+        $message = Message::buildExisting($message_id);
         $result = array(
             'name' => Podium::mark($message->subject, $search),
             'url' => URLHelper::getURL("dispatch.php/messages/overview/" . $message->id),

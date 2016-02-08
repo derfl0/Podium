@@ -29,12 +29,11 @@ class PodiumBuzzword extends SimpleORMap implements PodiumModule
 
         $query = DBManager::get()->quote("%$search%");
         $rights = $GLOBALS['perm']->permissions[$GLOBALS['perm']->get_perm()];
-        return "SELECT 'buzzword' as type, buzz_id as id FROM podium_buzzwords WHERE buzzwords LIKE $query AND $rights >= rights";
+        return "SELECT * FROM podium_buzzwords WHERE buzzwords LIKE $query AND $rights >= rights";
     }
 
-    public static function podiumFilter($buzz_id, $search)
+    public static function podiumFilter($buzz, $search)
     {
-        $buzz = DBManager::get()->fetchOne("SELECT * FROM podium_buzzwords WHERE buzz_id = ?", array($buzz_id));
         return array(
             'name' => htmlReady($buzz['name']),
             'url' => $buzz['url'],

@@ -114,28 +114,54 @@ class Podium extends StudIPPlugin implements SystemPlugin
      */
     public function find_action()
     {
+        // Now load all modules
+        Podium::loadDefaultModules();
         $search = trim(studip_utf8decode(Request::get('search')));
-        $stmt = DBManager::get()->query(self::getSQL($search));
-        $types = self::$types;
+        $sql = "";
         $result = array();
-
-        while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            if (sizeof($result[$data['type']]['content']) < self::MAX_RESULT_OF_TYPE) {
-                if ($item = $types[$data['type']]['filter']($data['id'], $search)) {
-                    $result[$data['type']]['name'] = $types[$data['type']]['name'];
-                    $result[$data['type']]['content'][] = $item;
+        $types = self::$types;
+        foreach ($types as $id => $type) {
+            if (self::isActiveModule($id)) {
+                $partSQL = $type['sql']($search);
+                if ($partSQL) {
+                    $new = mysqli_connect($GLOBALS['DB_STUDIP_HOST'], $GLOBALS['DB_STUDIP_USER'], $GLOBALS['DB_STUDIP_PASSWORD'], $GLOBALS['DB_STUDIP_DATABASE']);
+                    $new->query($type['sql']($search), MYSQLI_ASYNC);
+                    $new->podiumid = $id;
+                    $all_links[] = $new;
+                    $GLOBALS['all_links'] = $all_links;
                 }
             }
         }
 
-        // Write faillog if required
-        if (!$result && Config::get()->PODIUM_FAILLOG) {
-            DBManager::get()->execute("INSERT INTO podium_faillog (input, count) VALUES (?, 1) ON DUPLICATE KEY UPDATE count=count+1", array($search));
+        $read = $error = $reject = array();
+        while (count($read) + count($error) + count($reject) < count($all_links)) {
+
+            // Parse all links
+            $error = $reject = $read = $all_links;
+
+            // Poll will reject connection that have no query running
+            mysqli_poll($read, $error, $reject, 1);
+
+            foreach ($read as $r) {
+                if ($r && $set = $r->reap_async_query()) {
+                    $id = $r->podiumid;
+                    while ($data = $set->fetch_assoc()) {
+                        if (sizeof($result[$id]['content']) < self::MAX_RESULT_OF_TYPE) {
+                            $arg = $data['type'] && count($data) == 2 ? $data['id'] : $data;
+                            if ($item = $types[$id]['filter']($arg, $search)) {
+                                $result[$id]['name'] = $types[$id]['name'];
+                                $result[$id]['content'][] = $item;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         // Send me an answer
         echo json_encode(studip_utf8encode($result));
         die;
+
     }
 
     /**
@@ -180,7 +206,8 @@ class Podium extends StudIPPlugin implements SystemPlugin
         return $string;
     }
 
-    public static function isActiveModule($moduleId) {
+    public static function isActiveModule($moduleId)
+    {
         return !in_array($moduleId, Config::get()->PODIUM_MODULES);
     }
 }
