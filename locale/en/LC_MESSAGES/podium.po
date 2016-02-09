@@ -1,0 +1,196 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-02-09 10:18+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: controllers/settings.php:54
+msgid "Aktiv"
+msgstr ""
+
+#: controllers/settings.php:59
+msgid "Leeren"
+msgstr ""
+
+#: controllers/settings.php:90
+msgid "Neues Stichwort"
+msgstr ""
+
+#: migrations/01_setup_podium_db.php:34
+msgid ""
+"Schaltet den Podium Log ein. Darin werden gesuchte Begriffe gespeichert, die "
+"zu keinem Treffer führten"
+msgstr ""
+
+#: migrations/02_add_module_management.php:16
+msgid "Enthält alle deaktivierten Module"
+msgstr ""
+
+#: models/inactive/PodiumNavigation.php:26
+msgid "Navigation"
+msgstr ""
+
+#: models/PodiumBuzzword.php:22 views/settings/buzzwords.php:3
+#: views/settings/buzzwords.php:9 views/settings/edit_buzzword.php:22
+msgid "Stichwörter"
+msgstr ""
+
+#: models/PodiumCalendar.php:25
+msgid "Termine"
+msgstr ""
+
+#: models/PodiumCourse.php:25
+msgid "Veranstaltungen"
+msgstr ""
+
+#: models/PodiumFile.php:25
+msgid "Datei"
+msgstr ""
+
+#: models/PodiumInstitute.php:25
+msgid "Einrichtungen"
+msgstr ""
+
+#: models/PodiumMessages.php:29
+msgid "Nachrichten"
+msgstr ""
+
+#: models/PodiumMyCourses.php:25
+msgid "Meine Veranstaltungen"
+msgstr ""
+
+#: models/PodiumResources.php:25
+msgid "Ressourcen"
+msgstr ""
+
+#: models/PodiumSemTree.php:25
+msgid "Studienbereiche"
+msgstr ""
+
+#: models/PodiumUser.php:25
+msgid "Benutzer"
+msgstr ""
+
+#: Podium.php:30 views/settings/faillog.php:8
+msgid "Suchbegriff"
+msgstr "Search"
+
+#: Podium.php:35
+msgid "[STRG] + [Leertaste]"
+msgstr "[CTRL] + [Space]"
+
+#: Podium.php:36
+msgid "Tastenkombination zum Öffnen und Schließen"
+msgstr "Shortcut to open and close this search"
+
+#: Podium.php:38
+msgid "[ALT] oder Klick auf Überschrift"
+msgstr "[ALT] or click on header"
+
+#: Podium.php:39
+msgid ""
+"Erweitert die ausgewählte Suchkategorie. Bei einem weiteren Klick wird an "
+"die entsprechende Vollsuche weitergeleitet."
+msgstr "Expands the search to more results. Another click will bring up the original searchform for the searchtype."
+
+#: Podium.php:41
+msgid "Dateisuche"
+msgstr "Filesearch"
+
+#: Podium.php:42
+msgid ""
+"Die Dateisuche kann über einen Schrägstrich (/) verfeinert werden. Beispiel: "
+"\"Meine Veranstaltung/Datei\" zeigt alle Dateien die das Wort \"Datei\" "
+"enthalten und in \"Meine Veranstaltung\" sind an. Die Veranstaltung kann "
+"auch auf einen Teil (z.B. Veran/Datei) oder auf die Großbuchstaben bzw. auch "
+"deren Abkürzung (z.B. MV/Datei oder V/Datei) beschränkt werden."
+msgstr "Filesearch can be refined with a slash (/). Example: \"My Course/File\" will bring all Files in \"My Course\" which contains \"File\". It is also possible to shorten the coursename (\"Cour/File\") or only use its capital letters (\"MC/\"File\" or \"C/File\")"
+
+#: Podium.php:44
+msgid "Platzhalter"
+msgstr "Wildcards"
+
+#: Podium.php:45
+msgid "_ ist Platzhalter für ein beliebiges Zeichen."
+msgstr "_ is a wildcard for one character."
+
+#: Podium.php:46
+msgid "% ist Platzhalter für beliebig viele Zeichen."
+msgstr "% is the wildcard for any number of characters"
+
+#: Podium.php:47
+#, php-format
+msgid ""
+"Me_er findet Treffer für Me<mark>y</mark>er und Me<mark>i</mark>er. M__er "
+"findet zusätzlich auch M<mark>ay</mark>er und M<mark>ai</mark>er. M%er "
+"findet alle vorherigen Treffer aber auch M<mark>ünchn</mark>er."
+msgstr ""
+"Me_er will find Me<mark>y</mark>er and Me<mark>i</mark>er. M__er "
+"will additionally find M<mark>ay</mark>er and M<mark>ai</mark>er. M%er "
+"finds all previous hits and M<mark>etzg</mark>er."
+
+#: Podium.php:58
+msgid "Podium"
+msgstr ""
+
+#: Podium.php:59
+msgid "Module"
+msgstr ""
+
+#: Podium.php:60
+msgid "Stichworte"
+msgstr ""
+
+#: Podium.php:61 views/settings/faillog.php:3
+msgid "Erfolglose Suchen"
+msgstr ""
+
+#: views/settings/buzzwords.php:7 views/settings/edit_buzzword.php:8
+#: views/settings/edit_buzzword.php:9
+msgid "Name"
+msgstr ""
+
+#: views/settings/buzzwords.php:8
+msgid "Rechte"
+msgstr ""
+
+#: views/settings/buzzwords.php:10 views/settings/edit_buzzword.php:27
+msgid "Untertitel"
+msgstr ""
+
+#: views/settings/buzzwords.php:11
+msgid "Aktionen"
+msgstr ""
+
+#: views/settings/edit_buzzword.php:13
+msgid "Rechtestufe"
+msgstr ""
+
+#: views/settings/edit_buzzword.php:32
+msgid "URL"
+msgstr ""
+
+#: views/settings/edit_buzzword.php:36 views/settings/modules.php:14
+msgid "Speichern"
+msgstr ""
+
+#: views/settings/faillog.php:11
+msgid "Versuche"
+msgstr ""
+
+#: views/settings/modules.php:5
+msgid "Podium Module"
+msgstr ""

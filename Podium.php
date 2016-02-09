@@ -20,29 +20,30 @@ class Podium extends StudIPPlugin implements SystemPlugin
         parent::__construct();
 
         /* Init html and js */
+        bindtextdomain('podium', __DIR__ . '/locale');
         self::addStylesheet('/assets/style.less');
         PageLayout::addScript($this->getPluginURL() . '/assets/podium.js');
         PageLayout::addBodyElements('<div id="podiumwrapper">
                                         <div id="podium">
                                             <div id="podiuminput">
-                                                <input type="text" placeholder="' . _('Suchbegriff') . '">
+                                                <input type="text" placeholder="' . dgettext('podium', 'Suchbegriff') . '">
                                             </div>
                                             <ul id="podiumlist"></ul>
                                             <div class="podium_help">
                                                 <dl>
-                                                    <dt>' . _('[STRG] + [Leertaste]') . '</dt>
-                                                    <dd>' . _('Tastenkombination zum Öffnen und Schließen') . '</dd>
+                                                    <dt>' . dgettext('podium', '[STRG] + [Leertaste]') . '</dt>
+                                                    <dd>' . dgettext('podium', 'Tastenkombination zum Öffnen und Schließen') . '</dd>
 
-                                                    <dt>' . _('[ALT] oder Klick auf Überschrift') . '</dt>
-                                                    <dd>' . _('Erweitert die ausgewählte Suchkategorie. Bei einem weiteren Klick wird an die entsprechende Vollsuche weitergeleitet.') . '</dd>
+                                                    <dt>' . dgettext('podium', '[ALT] oder Klick auf Überschrift') . '</dt>
+                                                    <dd>' . dgettext('podium', 'Erweitert die ausgewählte Suchkategorie. Bei einem weiteren Klick wird an die entsprechende Vollsuche weitergeleitet.') . '</dd>
 
-                                                    <dt>' . _('Dateisuche') . '</dt>
-                                                    <dd>' . _('Die Dateisuche kann über einen Schrägstrich (/) verfeinert werden. Beispiel: "Meine Veranstaltung/Datei" zeigt alle Dateien die das Wort "Datei" enthalten und in "Meine Veranstaltung" sind an. Die Veranstaltung kann auch auf einen Teil (z.B. Veran/Datei) oder auf die Großbuchstaben bzw. auch deren Abkürzung (z.B. MV/Datei oder V/Datei) beschränkt werden.') . '</dd>
+                                                    <dt>' . dgettext('podium', 'Dateisuche') . '</dt>
+                                                    <dd>' . dgettext('podium', 'Die Dateisuche kann über einen Schrägstrich (/) verfeinert werden. Beispiel: "Meine Veranstaltung/Datei" zeigt alle Dateien die das Wort "Datei" enthalten und in "Meine Veranstaltung" sind an. Die Veranstaltung kann auch auf einen Teil (z.B. Veran/Datei) oder auf die Großbuchstaben bzw. auch deren Abkürzung (z.B. MV/Datei oder V/Datei) beschränkt werden.') . '</dd>
 
-                                                    <dt>' . _('Platzhalter') . '</dt>
-                                                    <dd>' . _('_ ist Platzhalter für ein beliebiges Zeichen.') . '</dd>
-                                                    <dd>' . _('% ist Platzhalter für beliebig viele Zeichen.') . '</dd>
-                                                    <dd>' . _('Me_er findet Treffer für Me<mark>y</mark>er und Me<mark>i</mark>er. M__er findet zusätzlich auch M<mark>ay</mark>er und M<mark>ai</mark>er. M%er findet alle vorherigen Treffer aber auch M<mark>ünchn</mark>er.') . '</dd>
+                                                    <dt>' . dgettext('podium', 'Platzhalter') . '</dt>
+                                                    <dd>' . dgettext('podium', '_ ist Platzhalter für ein beliebiges Zeichen.') . '</dd>
+                                                    <dd>' . dgettext('podium', '% ist Platzhalter für beliebig viele Zeichen.') . '</dd>
+                                                    <dd>' . dgettext('podium', 'Me_er findet Treffer für Me<mark>y</mark>er und Me<mark>i</mark>er. M__er findet zusätzlich auch M<mark>ay</mark>er und M<mark>ai</mark>er. M%er findet alle vorherigen Treffer aber auch M<mark>ünchn</mark>er.') . '</dd>
                                                 </dl>
                                             </div>
                                         </div>
