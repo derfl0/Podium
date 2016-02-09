@@ -23,10 +23,7 @@ interface PodiumModule
     public static function getPodiumName();
 
     /**
-     * Transforms the search request into an sql statement, that provides the id (same as getPodiumId) as type and
-     * the object id, that is later passed to the podiumfilter.
-     *
-     * This function is required to make use of the mysql union parallelism
+     * Has to return a SQL Query that discovers all objects. All retrieved data is passed row by row to getPodiumFilter
      *
      * @param $search the input query string
      * @return String SQL Query to discover elements for the search
@@ -45,9 +42,9 @@ interface PodiumModule
      * - expand: Url if the user further expands the search
      * - img: Avatar for the
      *
-     * @param $id
-     * @param $search
-     * @return mixed
+     * @param $data One row returned from getPodiumSearch SQL Query
+     * @param $search The searchstring (Use for markup e.g. Podium::mark)
+     * @return mixed Information Array
      */
-    public static function podiumFilter($id, $search);
+    public static function podiumFilter($data, $search);
 }
