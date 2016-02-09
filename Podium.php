@@ -199,6 +199,9 @@ class Podium extends StudIPPlugin implements SystemPlugin
      */
     public static function mark($string, $query, $filename = true)
     {
+        // Secure
+        $string = htmlReady($string);
+
         if (strpos($query, '/') !== FALSE) {
             $args = explode('/', $query);
             if ($filename) {
