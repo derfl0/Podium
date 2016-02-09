@@ -41,7 +41,7 @@ class PodiumForum implements PodiumModule
 
         // visibility
         if (!$GLOBALS['perm']->have_perm('admin')) {
-            $seminaruser = " AND NOT EXISTS (SELECT 1 FROM seminar_user WHERE seminar_id = courses.seminar_id AND user_id = ".DBManager::get()->quote(User::findCurrent()->id).") ";
+            $seminaruser = " AND EXISTS (SELECT 1 FROM seminar_user WHERE forum_entries.seminar_id = seminar_user.seminar_id AND seminar_user.user_id = ".DBManager::get()->quote(User::findCurrent()->id).") ";
         }
 
         $sql = "SELECT forum_entries.* FROM forum_entries WHERE (name LIKE $query OR content LIKE $query) $seminaruser ORDER BY chdate DESC LIMIT ".Podium::MAX_RESULT_OF_TYPE;
@@ -71,7 +71,7 @@ class PodiumForum implements PodiumModule
         $result = array(
             'id' => $data['topic_id'],
             'name' => Podium::mark($data['name'], $search) ? : _('Ohne Titel'),
-            'url' => URLHelper::getURL("plugins.php/coreforum/index/index/" . $data['topic_id']."#".$data['topic_id']),
+            'url' => URLHelper::getURL("plugins.php/coreforum/index/index/" . $data['topic_id']."#".$data['topic_id'], array('cid' => $data['seminar_id'])),
             'date' => strftime('%x %X', $data['chdate']),
             'additional' => htmlReady($user->getFullname()." "._('in')." ".$course->getFullname()),
             'expand' => URLHelper::getURL("plugins.php/coreforum/index/search", array(
