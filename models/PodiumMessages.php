@@ -73,7 +73,7 @@ class PodiumMessages implements PodiumModule
             'name' => Podium::mark($message->subject, $search),
             'url' => URLHelper::getURL("dispatch.php/messages/overview/" . $message->id),
             'date' => strftime('%x', $message->mkdate),
-            'additional' => $message->author->getFullname(),
+            'additional' => $message->autor_id != "____%system%____" ? $message->author->getFullname() : _("Systemnachricht"),
             'expand' => URLHelper::getURL("dispatch.php/messages/overview", array('search' => $search, 'search_subject' => 1, 'search_content' => 1, 'search_autor' => 1)
             )
         );
