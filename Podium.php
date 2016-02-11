@@ -153,7 +153,6 @@ class Podium extends StudIPPlugin implements SystemPlugin
                     $new->query($type['sql']($search), MYSQLI_ASYNC);
                     $new->podiumid = $id;
                     $all_links[] = $new;
-                    $GLOBALS['all_links'] = $all_links;
                 }
             }
         }
