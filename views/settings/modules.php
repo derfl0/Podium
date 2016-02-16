@@ -4,13 +4,19 @@
         <legend>
             <?= _('Podium Module') ?>
         </legend>
-        <? foreach ($modules as $id => $module): ?>
-            <label>
-                <input type="checkbox" name="modules[<?= $id ?>]"
-                       value="1" <?= Podium::isActiveModule($id) ? 'checked' : '' ?>>
-                <?= htmlReady($module['name']) ?>
-            </label>
-        <? endforeach ?>
+        <ul id="podium_modules">
+            <? foreach ($modules as $id => $module): ?>
+                <li>
+                    <input type="checkbox" name="modules[<?= $id ?>]" id="modules[<?= $id ?>]"
+                           value="1" <?= Podium::isActiveModule($id) ? 'checked' : '' ?>>
+                    <label for="modules[<?= $id ?>]"><?= htmlReady($module['name']) ?></label>
+                </li>
+            <? endforeach ?>
+        </ul>
         <?= \Studip\Button::create(_('Speichern'), 'store') ?>
     </fieldset>
 </form>
+
+<script>
+    $('ul#podium_modules').sortable();
+</script>

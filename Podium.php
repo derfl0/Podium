@@ -182,6 +182,9 @@ class Podium extends StudIPPlugin implements SystemPlugin
             }
         }
 
+        // Sort
+        $result = array_filter(array_merge(Config::get()->PODIUM_MODULES_ORDER, $result));
+
         // Send me an answer
         echo json_encode(studip_utf8encode($result));
         die;

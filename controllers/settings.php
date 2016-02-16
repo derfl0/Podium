@@ -40,7 +40,13 @@ class SettingsController extends StudipController
                 }
             }
             Config::get()->store(PODIUM_MODULES, $deactivated);
+
+            // Store order
+            Config::get()->store(PODIUM_MODULES_ORDER, array_map(function() {return 0;}, $activeModules));
         }
+
+        // Resort
+        $this->modules = array_merge(Config::get()->PODIUM_MODULES_ORDER, $this->modules);
     }
 
     public function faillog_action()
