@@ -116,6 +116,7 @@ STUDIP.Podium = {
                 var newItem = $('<a>', {href: hit.url})
                     .append($('<div>')
                         .append($('<p>', {html: hit.name}))
+                        .append($('<p>', {html: hit.description}))
                         .append($('<p>', {html: hit.additional}))
                         .append($('<date>', {text: hit.date})))
                     .mouseenter(function (e) {
