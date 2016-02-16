@@ -79,6 +79,9 @@ div#podiumwrapper {
               color: @light-gray-color;
               font-size: 0.6em;
             }
+            div {
+              overflow: hidden;
+            }
             a {
               display: flex;
               padding: 6px;
@@ -96,7 +99,10 @@ div#podiumwrapper {
               & + p {
                 color: @dark-gray-color;
                 font-size: 0.7em;
-                word-wrap: break-word;
+                //word-wrap: break-word;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
               }
             }
             & + li {

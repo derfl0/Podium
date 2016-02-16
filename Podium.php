@@ -196,7 +196,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
      * @param bool|true $filename
      * @return mixed
      */
-    public static function mark($string, $query, $filename = true)
+    public static function mark($string, $query, $longtext = false, $filename = true)
     {
         // Secure
         $string = htmlReady($string);
@@ -214,6 +214,15 @@ class Podium extends StudIPPlugin implements SystemPlugin
         // Replace direct string
         $result = preg_replace("/$query/i", "<mark>$0</mark>", $string, -1, $found);
         if ($found) {
+
+            // Check for overlength
+            if ($longtext && strlen($result) > 200) {
+                $start = max(array(0, stripos($result, '<mark>') - 20));
+                $space = stripos($result, ' ', $start);
+                $start = $space < $start + 20 ? $space : $start;
+                return substr($result, $start, 200);
+            }
+
             return $result;
         }
 
@@ -227,9 +236,11 @@ class Podium extends StudIPPlugin implements SystemPlugin
 
         $pattern = "/([\w\W]*)" . join('([\w\W]*)', $queryletter) . "/";
         $result = preg_replace($pattern, $replacement, $string, -1, $found);
+
         if ($found) {
             return $result;
         }
+
         return $string;
     }
 

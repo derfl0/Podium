@@ -73,7 +73,7 @@ class PodiumForum implements PodiumModule
             'name' => $data['name'] ? Podium::mark($data['name'], $search)  : ($course ? htmlReady($course->getFullname()) : _('Ohne Titel')),
             'url' => URLHelper::getURL("plugins.php/coreforum/index/index/" . $data['topic_id']."#".$data['topic_id'], array('cid' => $data['seminar_id'])),
             'date' => strftime('%x %X', $data['chdate']),
-            'description' => 'benis',
+            'description' => Podium::mark($data['content'], $search, true),
             'additional' => htmlReady(($user ? $user->getFullname() : '')." "._('in')." ".($course ? $course->getFullname() : '')),
             'expand' => URLHelper::getURL("plugins.php/coreforum/index/search", array(
                 'cid' => $data['seminar_id'],
