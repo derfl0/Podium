@@ -21,7 +21,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
 
         /* Init html and js */
         bindtextdomain('podium', __DIR__ . '/locale');
-        self::addStylesheet('/assets/style.less');
+        self::addStylesheet('/assets/style.less', array("media" => "all"));
         PageLayout::addScript($this->getPluginURL() . '/assets/podium.js');
         PageLayout::addBodyElements('<div id="podiumwrapper">
                                         <div id="podium">
@@ -110,28 +110,6 @@ class Podium extends StudIPPlugin implements SystemPlugin
             require_once $file;
             Podium::registerPodiumModule(basename($file, '.php'));
         }
-    }
-
-    private static function getSQL($search)
-    {
-        // register all classes
-        Podium::loadDefaultModules();
-
-        // build all types
-        foreach (self::$types as $id => $type) {
-
-            // check if module is active
-            if (self::isActiveModule($id)) {
-
-                // add the sql part
-                $partSQL = $type['sql']($search);
-                if ($partSQL) {
-                    $sql[] = "(" . $type['sql']($search) . " LIMIT 10)";
-                }
-            }
-        }
-
-        return "SELECT type, id FROM (" . join(' UNION ', $sql) . ") as a GROUP BY id ORDER BY null";
     }
 
     /**
