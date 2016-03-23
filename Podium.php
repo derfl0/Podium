@@ -163,6 +163,11 @@ class Podium extends StudIPPlugin implements SystemPlugin
         // Sort
         $result = array_filter(array_merge(Config::get()->PODIUM_MODULES_ORDER, $result));
 
+        // Write faillog if required
+        if (!$result && Config::get()->PODIUM_FAILLOG) {
+            DBManager::get()->execute("INSERT INTO podium_faillog (input, count) VALUES (?, 1) ON DUPLICATE KEY UPDATE count=count+1", array($search));
+        }
+
         // Send me an answer
         echo json_encode(studip_utf8encode($result));
         die;
