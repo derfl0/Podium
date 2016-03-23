@@ -2,17 +2,28 @@
 @opacity: 100%;
 
 div#podiumwrapper {
-  top: 18%;
+  @media only screen and (min-device-width:768px) {
+    top: 16%;
+  }
+  @media only screen and (max-device-width:768px) {
+    height: 100%;
+  }
   width: 100%;
   margin: auto;
   position: fixed;
   z-index: 9999999;
   display: none;
   div#podium {
-    width: 420px;
+    @media only screen and (min-device-width:768px) {
+      width: 420px;
+      border: 1px solid @base-color;
+    }
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+    overflow-y: auto;
     margin: 0 auto;
-    top: 30%;
-    border: 1px solid @base-color;
     box-shadow: 4px 4px 6px 0px rgba(0, 0, 0, 0.4);
     background-color: fade(white, @opacity);
     mark {
@@ -59,6 +70,7 @@ div#podiumwrapper {
       padding: 0;
       cursor: pointer;
       cursor: hand;
+      overflow-y: auto;
       li {
         & > p {
           background-color: fade(@content-color, @opacity);
