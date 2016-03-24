@@ -118,11 +118,7 @@ STUDIP.Podium = {
                         .append($('<p>', {html: hit.name}))
                         .append($('<p>', {html: hit.description}))
                         .append($('<p>', {html: hit.additional}))
-                        .append($('<date>', {text: hit.date})))
-                    .mouseenter(function (e) {
-                        list.find('.selected').removeClass('selected');
-                        $(e.target).closest('a').addClass('selected');
-                    });
+                        .append($('<date>', {text: hit.date})));
 
                 // Add expand if sent
                 if (hit.expand) {
@@ -150,6 +146,10 @@ STUDIP.Podium = {
                 && $("#podiumicon").has(e.target).length === 0) {
                 STUDIP.Podium.close();
             }
+        });
+
+        $('#podiumclose').click(function() {
+            STUDIP.Podium.close();
         });
 
         // Move podiumicon

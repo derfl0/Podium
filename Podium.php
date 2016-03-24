@@ -27,6 +27,9 @@ class Podium extends StudIPPlugin implements SystemPlugin
                                         <div id="podium">
                                             <div id="podiuminput">
                                                 <input type="text" placeholder="' . dgettext('podium', 'Suchbegriff') . '">
+                                                <div id="podiumclose">
+                                                    '.Assets::img('icons/64/blue/decline.png').'
+                                                </div>
                                             </div>
                                             <ul id="podiumlist"></ul>
                                             <div class="podium_help">
