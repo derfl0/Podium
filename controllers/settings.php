@@ -22,7 +22,7 @@ class SettingsController extends StudipController
         if (Request::isXhr()) {
             $this->set_content_type('text/html;Charset=windows-1252');
         } else {
-            $this->set_layout($GLOBALS['template_factory']->open('layouts/base_without_infobox.php'));
+            $this->set_layout($GLOBALS['template_factory']->open('layouts/base.php'));
         }
 
     }

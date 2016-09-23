@@ -130,8 +130,7 @@ STUDIP.Podium = {
                     newItem.prepend($('<img>', {src: hit.img}));
                 }
 
-                resultlist.append($('<li>')
-                    .append(newItem));
+                $('<li>').append(newItem).appendTo(resultlist);
             });
         });
         list.find('a').first().addClass('selected');
@@ -174,7 +173,7 @@ STUDIP.Podium = {
             var resultList = list.find('a:visible');
             var selectedItem = list.find('.selected');
             var currentIndex = resultList.index(selectedItem);
-            switch (e.which) {
+            switch (e.which || e.keyCode) {
                 case 27: // escape
                     e.preventDefault();
                     STUDIP.Podium.close();
@@ -196,7 +195,7 @@ STUDIP.Podium = {
                     break;
                 case 40: // down
                     e.preventDefault();
-                    if (resultList.size() - 1 > currentIndex) {
+                    if (resultList.length - 1 > currentIndex) {
                         $(resultList).removeClass('selected');
                         $(resultList[currentIndex + 1]).addClass('selected');
                     }

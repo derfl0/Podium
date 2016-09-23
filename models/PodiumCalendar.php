@@ -63,7 +63,7 @@ class PodiumCalendar implements PodiumModule
     public static function podiumFilter($termin, $search)
     {
         return array(
-            'name' => $termin['name'],
+            'name' => htmlReady($termin['name']),
             'url' => URLHelper::getURL("dispatch.php/course/details", array('cid' => $termin['seminar_id'])),
             'additional' => strftime('%H:%M', $termin['date']) . " - " . strftime('%H:%M', $termin['end_time']) . ", " . strftime('%x', $termin['date']),
             'expand' => URLHelper::getURL('calendar.php', array('cmd' => 'showweek', 'atime' => strtotime($search)))
