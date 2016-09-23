@@ -190,14 +190,24 @@ ul#podium_modules {
     border: solid @content-color 1px;
 
     input {
-      float: left;
-      margin: 14px;
+      display: none;
       &:checked + label {
-        background: @content-color-20;
+        .icon-before('blue/checkbox-checked', 16, 0.5em);
+        background-color: @content-color-20;
       }
     }
     label {
-      padding: 10px;
+      .icon-before('blue/checkbox-unchecked', 16, 0.5em);
+      background-color: #fff;
+      cursor: pointer;
+      display: block;
+      padding: 1em;
+
+      &:hover {
+        background-image: url("@{image-path}/anfasser_24.png");
+        background-position: left 3px center;
+        background-repeat: no-repeat;
+      }
     }
   }
 }
