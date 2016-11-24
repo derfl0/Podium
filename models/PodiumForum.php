@@ -2,7 +2,7 @@
 /**
  * PodiumModule for courses
  */
-class PodiumForum implements PodiumModule
+class PodiumForum implements PodiumModule,PodiumFulltext
 {
 
     /**
@@ -85,5 +85,29 @@ class PodiumForum implements PodiumModule
             ))
         );
         return $result;
+    }
+
+    public static function enable()
+    {
+        DBManager::get()->exec("ALTER TABLE forum_entries ADD FULLTEXT INDEX podium (name, content)");
+    }
+
+    public static function disable()
+    {
+        DBManager::get()->exec("DROP INDEX podium ON forum_entries");
+    }
+
+    public static function getFulltextSearch($search)
+    {
+        $search = str_replace(" ", "% ", $search);
+        $query = DBManager::get()->quote(preg_replace("/(\w+)[*]*\s?/", "+$1* ", $search));
+
+        // visibility
+        if (!$GLOBALS['perm']->have_perm('admin')) {
+            $seminaruser = " AND EXISTS (SELECT 1 FROM seminar_user WHERE forum_entries.seminar_id = seminar_user.seminar_id AND seminar_user.user_id = ".DBManager::get()->quote(User::findCurrent()->id).") ";
+        }
+
+        $sql = "SELECT forum_entries.* FROM forum_entries WHERE MATCH(name, content) AGAINST($query IN BOOLEAN MODE) $seminaruser ORDER BY chdate DESC LIMIT ".Podium::MAX_RESULT_OF_TYPE;
+        return $sql;
     }
 }

@@ -43,6 +43,24 @@ class SettingsController extends StudipController
 
             // Store order
             Config::get()->store(PODIUM_MODULES_ORDER, array_map(function() {return 0;}, $activeModules));
+
+            // Store fulltext
+
+            $old = Config::get()->PODIUM_FULLTEXT_MODULES;
+            $new = Request::getArray('fulltext');
+
+            // Deactivate
+            foreach (array_diff($old, $new) as $module) {
+                call_user_func(array(Podium::getModule($module), 'disable'));
+            }
+
+            // Activate
+            foreach (array_diff($new, $old) as $module) {
+                call_user_func(array(Podium::getModule($module), 'enable'));
+            }
+
+            // Store fulltexts
+            Config::get()->store(PODIUM_FULLTEXT_MODULES, $new);
         }
 
         // Resort

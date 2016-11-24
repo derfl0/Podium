@@ -2,7 +2,7 @@
 /**
  * PodiumModule for courses
  */
-class PodiumCourse implements PodiumModule
+class PodiumCourse implements PodiumModule,PodiumFulltext
 {
 
     /**
@@ -89,5 +89,52 @@ class PodiumCourse implements PodiumModule
             $result['img'] = $avatar->getUrl(AVATAR::MEDIUM);
         }
         return $result;
+    }
+
+    public static function enable()
+    {
+        DBManager::get()->exec("ALTER TABLE seminare ADD FULLTEXT INDEX podium (VeranstaltungsNummer, Name)");
+        DBManager::get()->exec("ALTER TABLE sem_types ADD FULLTEXT INDEX podium (name)");
+    }
+
+    public static function disable()
+    {
+        DBManager::get()->exec("DROP INDEX podium ON seminare");
+        DBManager::get()->exec("DROP INDEX podium ON sem_types");
+    }
+
+    public static function getFulltextSearch($search)
+    {
+        if (!$search) {
+            return null;
+        }
+
+        $query = DBManager::get()->quote(preg_replace("/(\w+)[*]*\s?/", "+$1* ", $search));
+
+        // visibility
+        if (!$GLOBALS['perm']->have_perm('admin')) {
+            $visibility = "courses.visible = 1 AND ";
+            $seminaruser = " AND NOT EXISTS (SELECT 1 FROM seminar_user WHERE seminar_id = courses.Seminar_id AND user_id = ".DBManager::get()->quote(User::findCurrent()->id).") ";
+        }
+
+        $semtype = DBManager::get()->query("SELECT id,name FROM sem_types WHERE MATCH (name) AGAINST ($query IN BOOLEAN MODE)");
+        while ($type = $semtype->fetch(PDO::FETCH_ASSOC)) {
+
+            $semtypes[] = $type['id'];
+            // Get up some order criteria with the semtypes
+            // Remove semtypes form query
+                $replace = "/".$type['name'][0].chunk_split(substr($type['name'], 1), 1, '?')."\*\s?/i";
+                $query = preg_replace($replace, "", $query);
+        }
+
+        if (isset($semtypes)) {
+            $semstatus = "status IN (".join(",",$semtypes) .") DESC, ";
+        }
+
+        $sql = "SELECT courses.Seminar_id,courses.start_time,courses.name,courses.veranstaltungsnummer,courses.status
+FROM seminare courses
+WHERE MATCH(VeranstaltungsNummer, Name) AGAINST ($query IN BOOLEAN MODE)
+ORDER BY $semstatus ABS(start_time - unix_timestamp()) ASC, MATCH(VeranstaltungsNummer, Name) AGAINST ($query IN BOOLEAN MODE) DESC LIMIT ".Podium::MAX_RESULT_OF_TYPE;
+        return $sql;
     }
 }

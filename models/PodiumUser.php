@@ -2,7 +2,7 @@
 /**
  * PodiumModule for user
  */
-class PodiumUser implements PodiumModule
+class PodiumUser implements PodiumModule, PodiumFulltext
 {
 
     /**
@@ -80,5 +80,34 @@ class PodiumUser implements PodiumModule
             $result['img'] = $avatar->getUrl(AVATAR::MEDIUM);
         }
         return $result;
+    }
+
+    public static function enable()
+    {
+        DBManager::get()->exec("ALTER TABLE auth_user_md5 ADD FULLTEXT INDEX podium (username, vorname, nachname)");
+    }
+
+    public static function disable()
+    {
+        DBManager::get()->exec("DROP INDEX podium ON auth_user_md5");
+    }
+
+    public static function getFulltextSearch($search)
+    {
+        if (!$search) {
+            return null;
+        }
+
+        // if you're no admin respect visibilty
+        if (!$GLOBALS['perm']->have_perm('admin')) {
+            $visQuery = get_vis_query('user', 'search') . " AND ";
+        }
+        $query = DBManager::get()->quote(preg_replace("/(\w+)[*]*\s?/", "+$1* ", $search));
+        $sql = "SELECT user.user_id, user.vorname, user.nachname, user.username  
+FROM auth_user_md5 user 
+LEFT JOIN user_visibility USING (user_id) 
+WHERE $visQuery MATCH(username, vorname, nachname) AGAINST($query IN BOOLEAN MODE)
+LIMIT ".Podium::MAX_RESULT_OF_TYPE;
+        return $sql;
     }
 }

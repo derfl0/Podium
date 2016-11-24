@@ -11,7 +11,14 @@
                            value="1" <?= Podium::isActiveModule($id) ? 'checked' : '' ?>>
                     <label for="modules[<?= $id ?>]" class="undecorated">
                         <?= htmlReady($module['name']) ?>
-                    </label>
+                        </label>
+                    <? if (Podium::isFulltextModule($module['sql'][0])): ?>
+                        <input type="checkbox" name="fulltext[]" id="fulltext[<?= $id ?>]"
+                               value="<?= $id ?>" <?= Podium::isActiveFulltextModule($id) ? 'checked' : '' ?>>
+                        <label for="fulltext[<?= $id ?>]" class="undecorated">
+                                <?= _('Volltext') ?>
+                            </label>
+                    <? endif; ?>
                 </li>
             <? endforeach ?>
         </ul>

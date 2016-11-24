@@ -47,4 +47,5 @@ interface PodiumModule
      * @return mixed Information Array
      */
     public static function podiumFilter($data, $search);
+
 }

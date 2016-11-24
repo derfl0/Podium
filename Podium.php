@@ -1,5 +1,6 @@
 <?php
 require "PodiumModule.php";
+require "PodiumFulltext.php";
 
 /**
  * Podium.php
@@ -72,7 +73,12 @@ class Podium extends StudIPPlugin implements SystemPlugin
      */
     public static function registerPodiumModule($class)
     {
-        self::addType($class::getPodiumId(), $class::getPodiumName(), array($class, 'getPodiumSearch'), array($class, 'podiumFilter'));
+        if (in_array($class::getPodiumId(), Config::get()->PODIUM_FULLTEXT_MODULES)) {
+            $search = 'getFulltextSearch';
+        } else {
+            $search = 'getPodiumSearch';
+        }
+        self::addType($class::getPodiumId(), $class::getPodiumName(), array($class, $search), array($class, 'podiumFilter'));
     }
 
     /**
@@ -137,7 +143,7 @@ class Podium extends StudIPPlugin implements SystemPlugin
                 }
             }
         }
-
+        $time = microtime(1);
         $read = $error = $reject = array();
         while (count($read) + count($error) + count($reject) < count($all_links)) {
 
@@ -150,6 +156,12 @@ class Podium extends StudIPPlugin implements SystemPlugin
             foreach ($read as $r) {
                 if ($r && $set = $r->reap_async_query()) {
                     $id = $r->podiumid;
+
+                    // If you wanna benchmark the results
+                    if (Request::submitted("benchmark")) {
+                        var_dump($id,microtime(1)-$time);
+                    }
+
                     while ($data = $set->fetch_assoc()) {
                         if (sizeof($result[$id]['content']) < self::MAX_RESULT_OF_TYPE) {
                             $arg = $data['type'] && count($data) == 2 ? $data['id'] : $data;
@@ -236,5 +248,36 @@ class Podium extends StudIPPlugin implements SystemPlugin
     public static function isActiveModule($moduleId)
     {
         return !in_array($moduleId, Config::get()->PODIUM_MODULES);
+    }
+
+    public static function isFulltextModule($moduleId) {
+        $re = new ReflectionClass($moduleId);
+        return $re->implementsInterface("PodiumFulltext");
+    }
+
+    public static function isActiveFulltextModule($moduleId) {
+        return in_array($moduleId, Config::get()->PODIUM_FULLTEXT_MODULES);
+    }
+
+    public static function getModule($name) {
+        $modules = self::getTypes();
+        return $modules[$name]['sql'][0];
+    }
+
+    public function benchmark_action() {
+        require "models/PodiumUser.php";
+        $n = PodiumUser::getPodiumSearch(Request::get("test"));
+        $f = PodiumUser::getFulltextSearch(Request::get("test"));
+        $ns = DBManager::get()->prepare($n);
+        $fs = DBManager::get()->prepare($f);
+        $time = microtime(1);
+        $ns->execute();
+        var_dump(microtime(1)-$time);
+        $time = microtime(1);
+        $fs->execute();
+        var_dump(microtime(1)-$time);
+        var_dump($ns->fetchAll());
+        var_dump($fs->fetchAll());
+        die;
     }
 }
