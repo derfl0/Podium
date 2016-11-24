@@ -1,4 +1,4 @@
-<form class="studip_form default" method="post">
+<form class="default" method="post">
     <?= CSRFProtection::tokenTag() ?>
     <fieldset>
         <legend>
