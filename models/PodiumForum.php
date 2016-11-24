@@ -101,13 +101,15 @@ class PodiumForum implements PodiumModule,PodiumFulltext
     {
         $search = str_replace(" ", "% ", $search);
         $query = DBManager::get()->quote(preg_replace("/(\w+)[*]*\s?/", "+$1* ", $search));
+        $words = substr(preg_replace("/\W*(\w+)\W*/", "$1|", $search), 0, -1);
+        $quoteRegex = 'content REGEXP "[[]quote=.*['.$words.'].*[]]|[<]admin_msg autor=.*[.'.$words.'.].*[>]" ASC, ';
 
         // visibility
         if (!$GLOBALS['perm']->have_perm('admin')) {
             $seminaruser = " AND EXISTS (SELECT 1 FROM seminar_user WHERE forum_entries.seminar_id = seminar_user.seminar_id AND seminar_user.user_id = ".DBManager::get()->quote(User::findCurrent()->id).") ";
         }
 
-        $sql = "SELECT forum_entries.* FROM forum_entries WHERE MATCH(name, content) AGAINST($query IN BOOLEAN MODE) $seminaruser ORDER BY chdate DESC LIMIT ".Podium::MAX_RESULT_OF_TYPE;
+        $sql = "SELECT forum_entries.* FROM forum_entries WHERE MATCH(name, content) AGAINST($query IN BOOLEAN MODE) $seminaruser ORDER BY $quoteRegex chdate DESC LIMIT ".Podium::MAX_RESULT_OF_TYPE;
         return $sql;
     }
 }
