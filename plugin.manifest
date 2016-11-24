@@ -1,6 +1,6 @@
 pluginname=Podium
 pluginclassname=Podium
 origin=intelec
-version=1.5.2
+version=1.6
 studipMinVersion=3.0
 studipMaxVersion=4.0.99
